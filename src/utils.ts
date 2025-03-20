@@ -59,6 +59,28 @@ export const getMonths = () => dayjs.months();
 export const getMonthName = (month: number) => dayjs.months()[month];
 
 /**
+ * Converts a date to a dayjs object with optional Islamic calendar support.
+ *
+ * @param {DateType} date - The input date to convert (can be any value dayjs accepts)
+ * @param {CalendarType} [calendar] - Optional calendar type to use ('islamic' for Hijri calendar)
+ * @returns {Dayjs} A dayjs object in either the default or Islamic calendar system
+ *
+ * @example
+ * // Get a standard dayjs object in the Geogorian calendar
+ * const standard = getDayjs('2025-03-20');
+ *
+ * @example
+ * // Get a dayjs object of a date in the Hijri calendar
+ * const hijri = getDayjs('2025-03-20', 'islamic');
+ */
+export const getDayjs = (date: DateType, calendar?: CalendarType) => {
+  if (calendar === 'islamic') {
+    return dayjs(date).toCalendarSystem('islamic');
+  }
+  return dayjs(date);
+};
+
+/**
  * Get months array
  *
  * @returns months array
@@ -70,6 +92,9 @@ export const getMonthsArray = ({
   calendar: CalendarType;
   locale: string;
 }): CalendarMonth[] => {
+  if (calendar === 'islamic') {
+    dayjs.toCalendarSystem('islamic');
+  }
   const monthNames =
     calendar === 'jalali' ? getJalaliMonths(locale) : dayjs.months();
   const monthShortNames =
@@ -122,12 +147,14 @@ export const getWeekdays = (
   return weekdays;
 };
 
-export const getFormated = (date: DateType) =>
-  dayjs(date).format(CALENDAR_FORMAT);
+export const getFormated = (date: DateType, calendar?: CalendarType) =>
+  getDayjs(date, calendar).format(CALENDAR_FORMAT);
 
-export const getDateMonth = (date: DateType) => dayjs(date).month();
+export const getDateMonth = (date: DateType, calendar?: CalendarType) =>
+  getDayjs(date, calendar).month();
 
-export const getDateYear = (date: DateType) => dayjs(date).year();
+export const getDateYear = (date: DateType, calendar?: CalendarType) =>
+  getDayjs(date, calendar).year();
 
 /**
  * Check if two dates are on the same day
@@ -153,6 +180,7 @@ export function areDatesOnSameDay(a: DateType, b: DateType) {
  *
  * @param date - date to check
  * @param options - options
+ * @param {CalendarType} [calendar] - Optional calendar type to use ('islamic' for Hijri calendar)
  *
  * @returns true if date is between two dates, false otherwise
  */
@@ -164,13 +192,16 @@ export function isDateBetween(
   }: {
     startDate?: DateType;
     endDate?: DateType;
-  }
+  },
+  calendar?: CalendarType
 ): boolean {
   if (!startDate || !endDate) {
     return false;
   }
 
-  return dayjs(date) <= endDate && dayjs(date) >= startDate;
+  return (
+    getDayjs(date, calendar) <= endDate && getDayjs(date, calendar) >= startDate
+  );
 }
 
 /**
@@ -188,17 +219,19 @@ export function isDateDisabled(
     maxDate,
     enabledDates,
     disabledDates,
+    calendar = 'gregory',
   }: {
     minDate?: DateType;
     maxDate?: DateType;
     enabledDates?: DateType[] | ((date: DateType) => boolean) | undefined;
     disabledDates?: DateType[] | ((date: DateType) => boolean) | undefined;
+    calendar?: CalendarType;
   }
 ): boolean {
-  if (minDate && date.isBefore(dayjs(minDate).startOf('day'))) {
+  if (minDate && date.isBefore(getDayjs(minDate, calendar).startOf('day'))) {
     return true;
   }
-  if (maxDate && date.isAfter(dayjs(maxDate).endOf('day'))) {
+  if (maxDate && date.isAfter(getDayjs(maxDate, calendar).endOf('day'))) {
     return true;
   }
 
@@ -230,6 +263,7 @@ export function isDateDisabled(
  *
  * @param year - year to check
  * @param options - options
+ * @param {CalendarType} [calendar] - Optional calendar type to use ('islamic' for Hijri calendar)
  *
  * @returns true if year is disabled, false otherwise
  */
@@ -241,10 +275,11 @@ export function isYearDisabled(
   }: {
     minDate?: DateType;
     maxDate?: DateType;
-  }
+  },
+  calendar?: CalendarType
 ): boolean {
-  if (minDate && year < getDateYear(minDate)) return true;
-  if (maxDate && year > getDateYear(maxDate)) return true;
+  if (minDate && year < getDateYear(minDate, calendar)) return true;
+  if (maxDate && year > getDateYear(maxDate, calendar)) return true;
 
   return false;
 }
@@ -255,6 +290,7 @@ export function isYearDisabled(
  * @param month - month to check
  * @param date - date to check
  * @param options - options
+ * @param {CalendarType} [calendar] - Optional calendar type to use ('islamic' for Hijri calendar)
  *
  * @returns true if month is disabled, false otherwise
  */
@@ -267,18 +303,19 @@ export function isMonthDisabled(
   }: {
     minDate?: DateType;
     maxDate?: DateType;
-  }
+  },
+  calendar?: CalendarType
 ): boolean {
   if (
     minDate &&
-    month < getDateMonth(minDate) &&
-    getDateYear(date) === getDateYear(minDate)
+    month < getDateMonth(minDate, calendar) &&
+    getDateYear(date, calendar) === getDateYear(minDate, calendar)
   )
     return true;
   if (
     maxDate &&
-    month > getDateMonth(maxDate) &&
-    getDateYear(date) === getDateYear(maxDate)
+    month > getDateMonth(maxDate, calendar) &&
+    getDateYear(date, calendar) === getDateYear(maxDate, calendar)
   )
     return true;
 
@@ -290,20 +327,26 @@ export function isMonthDisabled(
  *
  * @param date - date to get formated date from
  * @param format - format to get formated date from
+ * @param {CalendarType} [calendar] - Optional calendar type to use ('islamic' for Hijri calendar)
  *
  * @returns formated date
  */
-export const getFormatedDate = (date: DateType, format: string) =>
-  dayjs(date).format(format);
+export const getFormatedDate = (
+  date: DateType,
+  format: string,
+  calendar?: CalendarType
+) => getDayjs(date, calendar).format(format);
 
 /**
  * Get date
  *
  * @param date - date to get
+ * @param {CalendarType} [calendar] - Optional calendar type to use ('islamic' for Hijri calendar)
  *
  * @returns date
  */
-export const getDate = (date: DateType) => dayjs(date);
+export const getDate = (date: DateType, calendar?: CalendarType) =>
+  getDayjs(date, calendar);
 
 /**
  * Get year range
@@ -328,19 +371,22 @@ export const getYearRange = (year: number) => {
  * @param date - date to get days in month from
  * @param showOutsideDays - whether to show outside days
  * @param firstDayOfWeek - first day of week, number 0-6, 0 – Sunday, 6 – Saturday
+ * @param {CalendarType} [calendar] - Optional calendar type to use ('islamic' for Hijri calendar)
  *
  * @returns days in month
  */
 export function getDaysInMonth(
   date: DateType,
   showOutsideDays: boolean | undefined,
-  firstDayOfWeek: number
+  firstDayOfWeek: number,
+  calendar?: CalendarType
 ) {
-  const daysInCurrentMonth = dayjs(date).daysInMonth();
+  const currentDate = getDayjs(date, calendar);
+  const daysInCurrentMonth = currentDate.daysInMonth();
 
-  const prevMonthDays = dayjs(date).add(-1, 'month').daysInMonth();
-  const firstDay = dayjs(date).date(1 - firstDayOfWeek);
-  const prevMonthOffset = firstDay.day() % 7;
+  const prevMonthDays = currentDate.add(-1, 'month').daysInMonth();
+  const firstDay = currentDate.date(1 - firstDayOfWeek);
+  const prevMonthOffset = (firstDay as dayjs.Dayjs).day() % 7;
   const daysInPrevMonth = showOutsideDays ? prevMonthOffset : 0;
   const monthDaysOffset = prevMonthOffset + daysInCurrentMonth;
   const daysInNextMonth = showOutsideDays
@@ -366,37 +412,44 @@ export function getDaysInMonth(
  *
  * @param date - date to get first day of month from
  * @param firstDayOfWeek - first day of week, number 0-6, 0 – Sunday, 6 – Saturday
+ * @param {CalendarType} [calendar] - Optional calendar type to use ('islamic' for Hijri calendar)
  *
  * @returns first day of month
  */
 export function getFirstDayOfMonth(
   date: DateType,
-  firstDayOfWeek: number
+  firstDayOfWeek: number,
+  calendar?: CalendarType
 ): number {
-  const d = getDate(date);
-  return d.date(1 - firstDayOfWeek).day();
+  const d = getDate(date, calendar);
+  return (d.date(1 - firstDayOfWeek) as dayjs.Dayjs).day();
 }
 
 /**
  * Get start of day
  *
  * @param date - date to get start of day from
+ * @param {CalendarType} [calendar] - Optional calendar type to use ('islamic' for Hijri calendar)
  *
  * @returns start of day
  */
-export function getStartOfDay(date: DateType): DateType {
-  return dayjs(date).startOf('day');
+export function getStartOfDay(
+  date: DateType,
+  calendar?: CalendarType
+): DateType {
+  return getDayjs(date, calendar).startOf('day');
 }
 
 /**
  * Get end of day
  *
  * @param date - date to get end of day from
+ * @param {CalendarType} [calendar] - Optional calendar type to use ('islamic' for Hijri calendar)
  *
  * @returns end of day
  */
-export function getEndOfDay(date: DateType): DateType {
-  return dayjs(date).endOf('day');
+export function getEndOfDay(date: DateType, calendar?: CalendarType): DateType {
+  return getDayjs(date, calendar).endOf('day');
 }
 
 /**
@@ -428,17 +481,19 @@ export function removeTime(
  * Get detailed date object
  *
  * @param date Get detailed date object
+ * @param {CalendarType} [calendar] - Optional calendar type to use ('islamic' for Hijri calendar)
  *
  * @returns parsed date object
  */
-export const getParsedDate = (date: DateType) => {
+export const getParsedDate = (date: DateType, calendar?: CalendarType) => {
+  const dayjsDate = getDayjs(date, calendar);
   return {
-    year: dayjs(date).year(),
-    month: dayjs(date).month(),
-    hour: dayjs(date).hour(),
-    hour12: parseInt(dayjs(date).format('hh')),
-    minute: dayjs(date).minute(),
-    period: dayjs(date).format('A'),
+    year: dayjsDate.year(),
+    month: dayjsDate.month(),
+    hour: dayjsDate.hour(),
+    hour12: parseInt(dayjsDate.format('hh')),
+    minute: dayjsDate.minute(),
+    period: dayjsDate.format('A'),
   };
 };
 
@@ -456,6 +511,7 @@ export const getParsedDate = (date: DateType) => {
  * @param prevMonthOffset - number of days to offset the previous month
  * @param daysInCurrentMonth - number of days in the current month
  * @param daysInNextMonth - number of days in the next month
+ * @param {CalendarType} [calendar] - Optional calendar type to use ('islamic' for Hijri calendar)
  *
  * @returns days array based on current date
  */
@@ -471,9 +527,10 @@ export const getMonthDays = (
   prevMonthOffset: number,
   daysInCurrentMonth: number,
   daysInNextMonth: number,
-  numerals: Numerals
+  numerals: Numerals,
+  calendar?: CalendarType
 ): CalendarDay[] => {
-  const date = dayjs(datetime);
+  const date = getDayjs(datetime, calendar);
 
   const prevDays = showOutsideDays
     ? Array.from({ length: prevMonthOffset }, (_, index) => {
@@ -481,7 +538,7 @@ export const getMonthDays = (
         const thisDay = date.add(-1, 'month').date(number);
         return generateCalendarDay(
           number,
-          thisDay,
+          thisDay as dayjs.Dayjs,
           minDate,
           maxDate,
           enabledDates,
@@ -489,7 +546,8 @@ export const getMonthDays = (
           false,
           index + 1,
           firstDayOfWeek,
-          numerals
+          numerals,
+          calendar
         );
       })
     : Array(prevMonthOffset).fill(null);
@@ -499,7 +557,7 @@ export const getMonthDays = (
     const thisDay = date.date(day);
     return generateCalendarDay(
       day,
-      thisDay,
+      thisDay as dayjs.Dayjs,
       minDate,
       maxDate,
       enabledDates,
@@ -507,7 +565,8 @@ export const getMonthDays = (
       true,
       prevMonthOffset + day,
       firstDayOfWeek,
-      numerals
+      numerals,
+      calendar
     );
   });
 
@@ -516,7 +575,7 @@ export const getMonthDays = (
     const thisDay = date.add(1, 'month').date(day);
     return generateCalendarDay(
       day,
-      thisDay,
+      thisDay as dayjs.Dayjs,
       minDate,
       maxDate,
       enabledDates,
@@ -524,7 +583,8 @@ export const getMonthDays = (
       false,
       daysInCurrentMonth + prevMonthOffset + day,
       firstDayOfWeek,
-      numerals
+      numerals,
+      calendar
     );
   });
 
@@ -543,6 +603,7 @@ export const getMonthDays = (
  * @param isCurrentMonth - define the day is in the current month
  * @param dayOfMonth - number the day in the current month
  * @param firstDayOfWeek - first day of week, number 0-6, 0 – Sunday, 6 – Saturday
+ * @param {CalendarType} [calendar] - Optional calendar type to use ('islamic' for Hijri calendar)
  *
  * @returns days object based on current date
  */
@@ -556,9 +617,12 @@ const generateCalendarDay = (
   isCurrentMonth: boolean,
   dayOfMonth: number,
   firstDayOfWeek: number,
-  numerals: Numerals
+  numerals: Numerals,
+  calendar?: CalendarType
 ) => {
-  const startOfWeek = dayjs(date).startOf('week').add(firstDayOfWeek, 'day');
+  const startOfWeek = getDayjs(date, calendar)
+    .startOf('week')
+    .add(firstDayOfWeek, 'day');
 
   return {
     text: formatNumber(number, numerals),

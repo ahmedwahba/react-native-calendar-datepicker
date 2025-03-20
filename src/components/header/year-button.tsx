@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useCalendarContext } from '../../calendar-context';
-import { formatNumber, getDateYear, getYearRange } from '../../utils';
+import { formatNumber, getDateYear, getDayjs, getYearRange } from '../../utils';
 import dayjs from 'dayjs';
 
 const YearButton = () => {
@@ -19,16 +19,23 @@ const YearButton = () => {
   } = useCalendarContext();
 
   const years = getYearRange(currentYear);
+  let date;
+  if (calendar !== 'islamic') {
+    date = dayjs(currentDate).calendar(calendar);
+  } else {
+    date = getDayjs(currentDate, calendar);
+  }
+
   return (
     <Pressable
       disabled={disableYearPicker}
       onPress={() => {
         setCalendarView(calendarView === 'year' ? 'day' : 'year');
-        onChangeYear(getDateYear(currentDate));
+        onChangeYear(getDateYear(currentDate, calendar));
       }}
       testID="btn-year"
       accessibilityRole="button"
-      accessibilityLabel={dayjs(currentDate).calendar(calendar).format('YYYY')}
+      accessibilityLabel={date.format('YYYY')}
     >
       <View
         style={[defaultStyles.container, styles?.year_selector]}
@@ -40,10 +47,7 @@ const YearButton = () => {
         >
           {calendarView === 'year'
             ? `${formatNumber(years[0] || 0, numerals)} - ${formatNumber(years[years.length - 1] || 0, numerals)}`
-            : formatNumber(
-                parseInt(dayjs(currentDate).calendar(calendar).format('YYYY')),
-                numerals
-              )}
+            : formatNumber(parseInt(date.format('YYYY')), numerals)}
         </Text>
       </View>
     </Pressable>

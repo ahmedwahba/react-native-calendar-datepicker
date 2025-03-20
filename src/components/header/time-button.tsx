@@ -15,11 +15,12 @@ export const TimeButton = () => {
     classNames,
     numerals = 'latn',
     use12Hours,
+    calendar,
   } = useCalendarContext();
 
   const { hour, hour12, minute, period } = useMemo(
-    () => getParsedDate(date || currentDate),
-    [date, currentDate]
+    () => getParsedDate(date || currentDate, calendar),
+    [date, currentDate, calendar]
   );
 
   const labelText = useMemo(() => {

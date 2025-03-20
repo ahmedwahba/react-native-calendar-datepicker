@@ -12,6 +12,7 @@ import {
   getStartOfDay,
   areDatesOnSameDay,
   removeTime,
+  getDayjs,
 } from './utils';
 import { CalendarContext } from './calendar-context';
 import {
@@ -40,6 +41,8 @@ import timezone from 'dayjs/plugin/timezone';
 import duration from 'dayjs/plugin/duration';
 import { usePrevious } from './hooks/use-previous';
 import jalaliday from 'jalali-plugin-dayjs';
+import calendarSystems from '@calidy/dayjs-calendarsystems';
+import HijriCalendarSystem from '@calidy/dayjs-calendarsystems/calendarSystems/HijriCalendarSystem';
 
 dayjs.extend(localeData);
 dayjs.extend(relativeTime);
@@ -48,6 +51,10 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(duration);
 dayjs.extend(jalaliday);
+
+dayjs.extend(calendarSystems);
+/* Register new calendar system, here I'm using Hijri for other sytems visit URL: https://github.com/calidy-com/dayjs-calendarsystems */
+dayjs.registerCalendarSystem('islamic', new HijriCalendarSystem());
 
 export interface DatePickerSingleProps extends DatePickerBaseProps {
   mode: 'single';
@@ -118,7 +125,12 @@ const DateTimePicker = (
   } = props;
 
   dayjs.tz.setDefault(timeZone);
-  dayjs.calendar(calendar);
+  if (calendar !== 'islamic') {
+    dayjs.calendar(calendar);
+  }
+  if (calendar === 'islamic') {
+    dayjs.toCalendarSystem('islamic');
+  }
   dayjs.locale(locale);
 
   const prevTimezone = usePrevious(timeZone);
@@ -139,20 +151,24 @@ const DateTimePicker = (
   const initialState: LocalState = useMemo(() => {
     let initialDate = dayjs().tz(timeZone);
 
+    if (calendar === 'islamic') {
+      initialDate = dayjs().toCalendarSystem('islamic');
+    }
+
     if (mode === 'single' && date) {
-      initialDate = dayjs(date);
+      initialDate = getDayjs(date, calendar);
     }
 
     if (mode === 'range' && startDate) {
-      initialDate = dayjs(startDate);
+      initialDate = getDayjs(startDate, calendar);
     }
 
     if (mode === 'multiple' && dates && dates.length > 0) {
-      initialDate = dayjs(dates[0]);
+      initialDate = getDayjs(dates[0], calendar);
     }
 
     if (minDate && initialDate.isBefore(minDate)) {
-      initialDate = dayjs(minDate);
+      initialDate = getDayjs(minDate, calendar);
     }
 
     if (month !== undefined && month && month >= 0 && month <= 11) {
@@ -163,34 +179,36 @@ const DateTimePicker = (
       initialDate = initialDate.year(year);
     }
 
-    let _date = (date ? dayjs(date) : date) as DateType;
+    let _date = (date ? getDayjs(date, calendar) : date) as DateType;
 
-    if (_date && maxDate && dayjs(_date).isAfter(maxDate)) {
-      _date = dayjs(maxDate);
+    if (_date && maxDate && getDayjs(_date, calendar).isAfter(maxDate)) {
+      _date = getDayjs(maxDate, calendar);
     }
 
-    if (_date && minDate && dayjs(_date).isBefore(minDate)) {
+    if (_date && minDate && getDayjs(_date, calendar).isBefore(minDate)) {
       _date = dayjs(minDate);
     }
 
-    let start = (startDate ? dayjs(startDate) : startDate) as DateType;
+    let start = (
+      startDate ? getDayjs(startDate, calendar) : startDate
+    ) as DateType;
 
-    if (start && maxDate && dayjs(start).isAfter(maxDate)) {
-      start = dayjs(maxDate);
+    if (start && maxDate && getDayjs(start, calendar).isAfter(maxDate)) {
+      start = getDayjs(maxDate, calendar);
     }
 
-    if (start && minDate && dayjs(start).isBefore(minDate)) {
-      start = dayjs(minDate);
+    if (start && minDate && getDayjs(start, calendar).isBefore(minDate)) {
+      start = getDayjs(minDate, calendar);
     }
 
-    let end = (endDate ? dayjs(endDate) : endDate) as DateType;
+    let end = (endDate ? getDayjs(endDate, calendar) : endDate) as DateType;
 
-    if (end && maxDate && dayjs(end).isAfter(maxDate)) {
-      end = dayjs(maxDate);
+    if (end && maxDate && getDayjs(end, calendar).isAfter(maxDate)) {
+      end = getDayjs(maxDate, calendar);
     }
 
-    if (end && minDate && dayjs(end).isBefore(minDate)) {
-      end = dayjs(minDate);
+    if (end && minDate && getDayjs(end, calendar).isBefore(minDate)) {
+      end = getDayjs(minDate, calendar);
     }
 
     return {
@@ -298,7 +316,7 @@ const DateTimePicker = (
         (date &&
           (timePicker
             ? dayjs.tz(date, timeZone)
-            : getStartOfDay(dayjs.tz(date, timeZone)))) ??
+            : getStartOfDay(dayjs.tz(date, timeZone), calendar))) ??
         date;
 
       if (_date && maxDate && dayjs.tz(_date, timeZone).isAfter(maxDate)) {
@@ -316,7 +334,7 @@ const DateTimePicker = (
 
       if (prevTimezone !== timeZone) {
         (onChange as SingleChange)({
-          date: _date ? dayjs(_date).toDate() : _date,
+          date: _date ? getDayjs(_date, calendar).toDate() : _date,
         });
       }
     } else if (mode === 'range') {
@@ -352,13 +370,13 @@ const DateTimePicker = (
 
       if (prevTimezone !== timeZone) {
         (onChange as RangeChange)({
-          startDate: start ? dayjs(start).toDate() : start,
-          endDate: end ? dayjs(end).toDate() : end,
+          startDate: start ? getDayjs(start, calendar).toDate() : start,
+          endDate: end ? getDayjs(end, calendar).toDate() : end,
         });
       }
     } else if (mode === 'multiple') {
       const _dates = dates?.map((date) =>
-        dayjs(date).tz(timeZone)
+        getDayjs(date, calendar).tz(timeZone)
       ) as DateType[];
 
       dispatch({
@@ -368,7 +386,7 @@ const DateTimePicker = (
 
       if (prevTimezone !== timeZone) {
         (onChange as MultiChange)({
-          dates: _dates.map((item) => dayjs(item).toDate()),
+          dates: _dates.map((item) => getDayjs(item, calendar).toDate()),
           change: 'updated',
         });
       }
@@ -385,6 +403,7 @@ const DateTimePicker = (
     prevTimezone,
     timeZone,
     calendar,
+    onChange,
   ]);
 
   const setCalendarView = useCallback((view: CalendarViews) => {
@@ -397,7 +416,7 @@ const DateTimePicker = (
         if (mode === 'single') {
           const newDate = timePicker
             ? dayjs.tz(selectedDate, timeZone)
-            : dayjs.tz(getStartOfDay(selectedDate), timeZone);
+            : dayjs.tz(getStartOfDay(selectedDate, calendar), timeZone);
 
           dispatch({
             type: CalendarActionKind.CHANGE_CURRENT_DATE,
@@ -405,7 +424,7 @@ const DateTimePicker = (
           });
 
           (onChange as SingleChange)({
-            date: newDate ? dayjs(newDate).toDate() : newDate,
+            date: newDate ? getDayjs(newDate, calendar).toDate() : newDate,
           });
         } else if (mode === 'range') {
           // set time to 00:00:00
@@ -446,7 +465,7 @@ const DateTimePicker = (
           }
 
           if (isStart && end && (min || max)) {
-            const numberOfDays = dayjs(end).diff(selected, 'day');
+            const numberOfDays = getDayjs(end, calendar).diff(selected, 'day');
 
             if ((max && numberOfDays > max) || (min && numberOfDays < min)) {
               isStart = true;
@@ -455,7 +474,10 @@ const DateTimePicker = (
           }
 
           if (!isStart && start && (min || max)) {
-            const numberOfDays = dayjs(selected).diff(start, 'day');
+            const numberOfDays = getDayjs(selected, calendar).diff(
+              start,
+              'day'
+            );
 
             if (dateToUnix(selected) === dateToUnix(start)) {
               isReset = true;
@@ -476,20 +498,22 @@ const DateTimePicker = (
           } else {
             (onChange as RangeChange)({
               startDate: isStart
-                ? dayjs(selected).toDate()
+                ? getDayjs(selected, calendar).toDate()
                 : start
                   ? dayjs.tz(start).toDate()
                   : start,
               endDate: !isStart
-                ? dayjs.tz(getEndOfDay(selected), timeZone).toDate()
+                ? dayjs.tz(getEndOfDay(selected, calendar), timeZone).toDate()
                 : end
-                  ? dayjs.tz(getEndOfDay(end), timeZone).toDate()
+                  ? dayjs.tz(getEndOfDay(end, calendar), timeZone).toDate()
                   : end,
             });
           }
         } else if (mode === 'multiple') {
           const safeDates = (stateRef.current.dates as DateType[]) || [];
-          const newDate = dayjs(selectedDate, timeZone).startOf('day');
+          const newDate = dayjs
+            .tz(getDayjs(selectedDate, calendar), timeZone)
+            .startOf('day');
 
           const exists = safeDates.some((ed) => areDatesOnSameDay(ed, newDate));
 
@@ -541,8 +565,13 @@ const DateTimePicker = (
   // set the active displayed year
   const onSelectYear = useCallback(
     (value: number) => {
-      const currentYear = dayjs(stateRef.current.currentDate).year();
-      const newDate = dayjs(stateRef.current.currentDate).year(value);
+      const currentYear = getDayjs(
+        stateRef.current.currentDate,
+        calendar
+      ).year();
+      const newDate = getDayjs(stateRef.current.currentDate, calendar).year(
+        value
+      );
 
       // Only call onYearChange if the year actually changed
       if (value !== currentYear) {
@@ -555,18 +584,21 @@ const DateTimePicker = (
       });
       setCalendarView('day');
     },
-    [setCalendarView, onYearChange]
+    [calendar, setCalendarView, onYearChange]
   );
 
   const onChangeMonth = useCallback(
     (value: number) => {
-      const newDate = dayjs(stateRef.current.currentDate).add(value, 'month');
+      const newDate = getDayjs(stateRef.current.currentDate, calendar).add(
+        value,
+        'month'
+      );
       dispatch({
         type: CalendarActionKind.CHANGE_CURRENT_DATE,
-        payload: dayjs(newDate),
+        payload: getDayjs(newDate, calendar),
       });
     },
-    [stateRef, dispatch]
+    [calendar]
   );
 
   const onChangeYear = useCallback(

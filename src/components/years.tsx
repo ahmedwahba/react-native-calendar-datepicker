@@ -33,11 +33,11 @@ const Years = () => {
     [containerHeight, isRTL]
   );
 
-  const selectedYear = getDateYear(date);
+  const selectedYear = getDateYear(date, calendar);
 
   const generateCells = useCallback(() => {
     const years = getYearRange(currentYear);
-    const activeYear = getDateYear(currentDate);
+    const activeYear = getDateYear(currentDate, calendar);
     const column = years.map((year) => {
       const isSelected = year === selectedYear;
       const isActivated = year === activeYear;

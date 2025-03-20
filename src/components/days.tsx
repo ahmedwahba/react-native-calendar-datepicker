@@ -10,6 +10,7 @@ import {
   areDatesOnSameDay,
   isDateBetween,
   getDate,
+  getDayjs,
 } from '../utils';
 import Weekdays from './weekdays';
 import { DateType } from 'src/types';
@@ -46,15 +47,15 @@ const Days = () => {
 
   const style = useMemo(() => createDefaultStyles(isRTL), [isRTL]);
 
-  const { year, month, hour, minute } = getParsedDate(currentDate);
+  const { hour, minute } = getParsedDate(currentDate, calendar);
 
   const handleSelectDate = useCallback(
     (selectedDate: DateType) => {
-      const newDate = getDate(selectedDate).hour(hour).minute(minute);
+      const newDate = getDate(selectedDate, calendar).hour(hour).minute(minute);
 
       onSelectDate(newDate);
     },
-    [onSelectDate, hour, minute]
+    [calendar, hour, minute, onSelectDate]
   );
 
   const containerStyle = useMemo(
@@ -63,7 +64,10 @@ const Days = () => {
   );
 
   const daysGrid = useMemo(() => {
-    const today = dayjs().tz(timeZone);
+    let today = dayjs().tz(timeZone);
+    if (calendar === 'islamic') {
+      today = dayjs().toCalendarSystem('islamic');
+    }
     dayjs.tz.setDefault(timeZone);
 
     const {
@@ -72,7 +76,7 @@ const Days = () => {
       prevMonthOffset,
       daysInCurrentMonth,
       daysInNextMonth,
-    } = getDaysInMonth(currentDate, showOutsideDays, firstDayOfWeek);
+    } = getDaysInMonth(currentDate, showOutsideDays, firstDayOfWeek, calendar);
 
     return getMonthDays(
       currentDate,
@@ -86,7 +90,8 @@ const Days = () => {
       prevMonthOffset,
       daysInCurrentMonth,
       daysInNextMonth,
-      numerals
+      numerals,
+      calendar
     ).map((day, index) => {
       if (!day) return null;
 
@@ -107,7 +112,7 @@ const Days = () => {
         const selectedStartDay = areDatesOnSameDay(day.date, startDate);
         const selectedEndDay = areDatesOnSameDay(day.date, endDate);
         isSelected = selectedStartDay || selectedEndDay;
-        inRange = isDateBetween(day.date, { startDate, endDate });
+        inRange = isDateBetween(day.date, { startDate, endDate }, calendar);
 
         if (selectedStartDay) leftCrop = true;
         if (selectedEndDay) rightCrop = true;
@@ -117,8 +122,8 @@ const Days = () => {
         if (
           (isFirstDayOfMonth && selectedEndDay) ||
           (isLastDayOfMonth && selectedStartDay) ||
-          dayjs(startDate).format('DDMMYYYY') ===
-            dayjs(endDate).format('DDMMYYYY')
+          getDayjs(startDate, calendar).format('DDMMYYYY') ===
+            getDayjs(endDate, calendar).format('DDMMYYYY')
         ) {
           inRange = false;
         }
@@ -133,8 +138,8 @@ const Days = () => {
 
         // if the selected days in a row, implements range mode style to selected days
         if (multiRangeMode) {
-          const yesterday = dayjs(day.date).subtract(1, 'day');
-          const tomorrow = dayjs(day.date).add(1, 'day');
+          const yesterday = getDayjs(day.date, calendar).subtract(1, 'day');
+          const tomorrow = getDayjs(day.date, calendar).add(1, 'day');
 
           const yesterdaySelected = safeDates.some((d) =>
             areDatesOnSameDay(d, yesterday)
@@ -203,8 +208,6 @@ const Days = () => {
     calendar,
     numerals,
     timeZone,
-    month,
-    year,
     showOutsideDays,
     firstDayOfWeek,
     minDate,

@@ -1,6 +1,6 @@
 {
-  "name": "react-native-ui-datepicker",
-  "version": "3.1.0",
+  "name": "react-native-calendar-datepicker",
+  "version": "1.0.0",
   "description": "Customizable date picker for React Native",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -43,6 +43,7 @@
     "react-native",
     "ios",
     "android",
+    "react-native-calendar-datetpicker",
     "react-native-ui-datetpicker",
     "react-native-datetime",
     "react-native-datetime-picker",
@@ -61,13 +62,13 @@
     "calendar",
     "daterange"
   ],
-  "repository": "https://github.com/farhoudshapouran/react-native-ui-datepicker",
-  "author": "Farhoud Shapouran <shapouran@gmail.com> (https://github.com/farhoudshapouran)",
+  "repository": "https://github.com/ahmedwahba/react-native-calendar-datepicker",
+  "author": "Ahmed Wahba",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/farhoudshapouran/react-native-ui-datepicker/issues"
+    "url": "https://github.com/ahmedwahba/react-native-calendar-datepicker/issues"
   },
-  "homepage": "https://github.com/farhoudshapouran/react-native-ui-datepicker#readme",
+  "homepage": "https://github.com/ahmedwahba/react-native-calendar-datepicker#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
@@ -109,7 +110,8 @@
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*"
+    "react-native": "*",
+    "@calidy/dayjs-calendarsystems": "*"
   },
   "engines": {
     "node": ">= 18"
@@ -165,6 +167,7 @@
     ]
   },
   "dependencies": {
+    "@calidy/dayjs-calendarsystems": "^1.11.3",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
     "jalali-plugin-dayjs": "^1.1.4",

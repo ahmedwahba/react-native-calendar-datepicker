@@ -25,7 +25,7 @@ const Months = () => {
     [containerHeight, isRTL]
   );
 
-  const { month } = getParsedDate(currentDate);
+  const { month } = getParsedDate(currentDate, calendar);
 
   const containerStyle = StyleSheet.flatten([style.container, styles?.months]);
 
