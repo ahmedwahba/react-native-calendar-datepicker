@@ -74,6 +74,9 @@ export const getMonthName = (month: number) => dayjs.months()[month];
  * const hijri = getDayjs('2025-03-20', 'islamic');
  */
 export const getDayjs = (date: DateType, calendar?: CalendarType) => {
+  if (date === undefined) {
+    date = new Date();
+  }
   if (calendar === 'islamic') {
     return dayjs(date).toCalendarSystem('islamic');
   }
@@ -92,9 +95,6 @@ export const getMonthsArray = ({
   calendar: CalendarType;
   locale: string;
 }): CalendarMonth[] => {
-  if (calendar === 'islamic') {
-    dayjs.toCalendarSystem('islamic');
-  }
   const monthNames =
     calendar === 'jalali' ? getJalaliMonths(locale) : dayjs.months();
   const monthShortNames =

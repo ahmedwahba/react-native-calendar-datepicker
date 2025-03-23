@@ -128,9 +128,7 @@ const DateTimePicker = (
   if (calendar !== 'islamic') {
     dayjs.calendar(calendar);
   }
-  if (calendar === 'islamic') {
-    dayjs.toCalendarSystem('islamic');
-  }
+
   dayjs.locale(locale);
 
   const prevTimezone = usePrevious(timeZone);
@@ -152,7 +150,7 @@ const DateTimePicker = (
     let initialDate = dayjs().tz(timeZone);
 
     if (calendar === 'islamic') {
-      initialDate = dayjs().toCalendarSystem('islamic');
+      initialDate = getDayjs(initialDate, calendar);
     }
 
     if (mode === 'single' && date) {
@@ -327,10 +325,12 @@ const DateTimePicker = (
         _date = dayjs.tz(minDate, timeZone);
       }
 
-      dispatch({
-        type: CalendarActionKind.CHANGE_SELECTED_DATE,
-        payload: { date: _date },
-      });
+      if (_date) {
+        dispatch({
+          type: CalendarActionKind.CHANGE_SELECTED_DATE,
+          payload: { date: getDayjs(_date, calendar) },
+        });
+      }
 
       if (prevTimezone !== timeZone) {
         (onChange as SingleChange)({
@@ -545,8 +545,8 @@ const DateTimePicker = (
   // set the active displayed month
   const onSelectMonth = useCallback(
     (value: number) => {
-      const currentMonth = dayjs(stateRef.current.currentDate).month();
-      const newDate = dayjs(stateRef.current.currentDate).month(value);
+      const currentMonth = stateRef.current.currentDate.month();
+      const newDate = stateRef.current.currentDate.month(value);
 
       // Only call onMonthChange if the month actually changed
       if (value !== currentMonth) {
@@ -555,11 +555,11 @@ const DateTimePicker = (
 
       dispatch({
         type: CalendarActionKind.CHANGE_CURRENT_DATE,
-        payload: newDate,
+        payload: getDayjs(newDate, calendar),
       });
       setCalendarView('day');
     },
-    [setCalendarView, onMonthChange]
+    [calendar, setCalendarView, onMonthChange]
   );
 
   // set the active displayed year

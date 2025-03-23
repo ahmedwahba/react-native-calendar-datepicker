@@ -2,14 +2,6 @@
 <img src="/.github/images/rnui-datepicker.png" alt="react-native-ui-datepicker" />
 </p>
 
-<div align="center">
-
- [![npm version](https://img.shields.io/npm/v/react-native-ui-datepicker)](https://www.npmjs.com/package/react-native-ui-datepicker)
-[![npm downloads](https://img.shields.io/npm/dm/react-native-ui-datepicker.svg)](https://www.npmjs.com/package/react-native-ui-datepicker)
-[![Github](https://img.shields.io/github/license/farhoudshapouran/react-native-ui-datepicker)](https://github.com/farhoudshapouran/react-native-ui-datepicker)
-[![gzipped size](https://img.shields.io/bundlephobia/minzip/react-native-ui-datepicker)](https://www.npmjs.com/package/react-native-ui-datepicker)
-
-</div>
 
 DateTimePicker component for React Native that allows you to create a customizable datetime picker. The component uses extensive set of props that allows you to customizing the calendar based on your own UI design. Please visit [demo](https://farhoudshapouran.github.io/react-native-ui-datepicker/).
 
@@ -21,29 +13,30 @@ DateTimePicker component for React Native that allows you to create a customizab
 - 🎨 Fully compatible with [NativeWind](https://www.nativewind.dev/).
 - 🌎 Easily localizable into any language.
 - 🕗 Handles different time zones seamlessly.
-- ⚙️ Customizable components allow extending rendered elements. 
+- ⚙️ Customizable components allow extending rendered elements.
 - ⚡ Fast & lightweight, only re-renders the elements that actually change.
 
 ## Installation
+To use this fork of the library
 
 ```sh
-npm install react-native-ui-datepicker
+npm install react-native-calendars-datepicker
 ```
 
 Or
 
 ```sh
-yarn add react-native-ui-datepicker
+yarn add react-native-calendars-datepicker
 ```
 
 ## Basic Usage
 
-1. Import the component and default styles or classNames from  `react-native-ui-datepicker`.
+1. Import the component and default styles or classNames from  `react-native-calendars-datepicker`.
 2. Choose a selection mode using the `mode` prop. The available modes are: `single`, `range`, and `multiple`.
 
 ```jsx
 import { useState } from  'react';
-import DateTimePicker, { DateType, useDefaultStyles } from 'react-native-ui-datepicker';
+import DateTimePicker, { DateType, useDefaultStyles } from 'react-native-calendars-datepicker';
 
 export function Calendar() {
   const defaultStyles = useDefaultStyles();
@@ -51,6 +44,7 @@ export function Calendar() {
 
   return (
     <DateTimePicker
+      calendar="islamic"
       mode="single"
       date={selected}
       onChange={({ date }) =>  setSelected(date)}
@@ -65,7 +59,7 @@ export function Calendar() {
 | Name               | Type                              | Description                                        |
 | ------------------ | --------------------------------- | -------------------------------------------------- |
 | `mode`               | `"single"` \| `"range"` \| `"multiple"`   | Defines the DatePicker mode.                       |
-| `calendar`               | `"gregory"` \| `"jalali"`  | Defines the calendar type of DatePicker.                      |
+| `calendar`           | `"gregory"` \| `"jalali"`\| `"islamic"`  | Defines the calendar type of DatePicker.                      |
 | `minDate`            | `DateType`                        | Defines the minimum selectable date in the DatePicker.   |
 | `maxDate`            | `DateType`                        | Defines the maximum selectable date in the DatePicker.   |
 | `enabledDates`   | `DateType[]` \| `(date: DateType) => boolean` | Defines an array of enabled dates or a function that returns `true` for enabled dates. It takes precedence over disabledDates. |
@@ -87,6 +81,7 @@ export function Calendar() {
   return (
     <DateTimePicker
       mode="single"
+      calendar="islamic" // default is gregory
       date={selected}
       onChange={({ date }) =>  setSelected(date)}
       minDate={today} // Set the minimum selectable date to today
@@ -165,7 +160,7 @@ Use the `styles` prop to apply custom styles instead of the default ones.
 These styles are mapped to the values of the [UI Theme](https://github.com/farhoudshapouran/react-native-ui-datepicker/blob/main/src/ui.ts) enums.
 
 ```jsx
-import DateTimePicker, { useDefaultStyles } from 'react-native-ui-datepicker';
+import DateTimePicker, { useDefaultStyles } from 'react-native-calendars-datepicker';
 
 export function Calendar() {
   const defaultStyles = useDefaultStyles();
@@ -191,7 +186,7 @@ Use the `classNames` prop to apply custom class names instead of the default one
 These class names are mapped to the values of the [UI Theme](https://github.com/farhoudshapouran/react-native-ui-datepicker/blob/main/src/ui.ts) enums.
 
 ```jsx
-import DateTimePicker, { useDefaultClassNames } from 'react-native-ui-datepicker';
+import DateTimePicker, { useDefaultClassNames } from 'react-native-calendars-datepicker';
 
 export function Calendar() {
   const defaultClassNames = useDefaultClassNames();
@@ -253,7 +248,7 @@ import DateTimePicker, {
   CalendarDay,
   CalendarMonth,
   CalendarComponents,
-} from 'react-native-ui-datepicker';
+} from 'react-native-calendars-datepicker';
 
 const components: CalendarComponents = {
   Day: (day: CalendarDay) => <YourCustomDay day={day} />,

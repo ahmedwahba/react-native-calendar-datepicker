@@ -1,15 +1,23 @@
 {
-  "name": "react-native-calendar-datepicker",
-  "version": "1.0.0",
-  "description": "Customizable date picker for React Native",
+  "name": "react-native-calendars-datepicker",
+  "version": "1.0.1",
+  "description": "Customizable date picker for React Native that supports Hijri calendar ",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "lib/typescript/index.d.ts",
   "react-native": "src/index",
   "source": "src/index",
   "exports": {
-    "import": "./lib/module/index.js",
-    "require": "./lib/commonjs/index.js"
+    ".": {
+      "import": {
+        "default": "./lib/module/index.js",
+        "types": "./lib/typescript/index.d.ts"
+      },
+       "require": {
+        "default": "./lib/commonjs/index.js",
+        "types": "./lib/typescript/index.d.ts"
+       }
+    }
   },
   "files": [
     "src",
@@ -43,16 +51,19 @@
     "react-native",
     "ios",
     "android",
-    "react-native-calendar-datetpicker",
-    "react-native-ui-datetpicker",
+    "react-native-calendars-datepicker",
+    "react-native-calendar-datepicker",
+    "react-native-calendars-picker",
+    "react-native-ui-datepicker",
     "react-native-datetime",
     "react-native-datetime-picker",
     "react-native-datetpicker",
-    "react-native-datet-picker",
     "react-native-timepicker",
     "react-native-time-picker",
     "react-native-calendar",
     "react-native-daterange",
+    "react-native-hijri-calendar",
+    "hijri-calendar",
     "datetime",
     "datetime-picker",
     "datepicker",
