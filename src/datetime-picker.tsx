@@ -587,19 +587,15 @@ const DateTimePicker = (
     [calendar, setCalendarView, onYearChange]
   );
 
-  const onChangeMonth = useCallback(
-    (value: number) => {
-      const newDate = getDayjs(stateRef.current.currentDate, calendar).add(
-        value,
-        'month'
-      );
-      dispatch({
-        type: CalendarActionKind.CHANGE_CURRENT_DATE,
-        payload: getDayjs(newDate, calendar),
-      });
-    },
-    [calendar]
-  );
+  const onChangeMonth = useCallback((value: number) => {
+    const currentMonth = stateRef.current.currentDate.month();
+    const newDate = stateRef.current.currentDate.month(currentMonth + value);
+
+    dispatch({
+      type: CalendarActionKind.CHANGE_CURRENT_DATE,
+      payload: newDate,
+    });
+  }, []);
 
   const onChangeYear = useCallback(
     (value: number) => {
