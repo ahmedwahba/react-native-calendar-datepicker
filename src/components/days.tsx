@@ -99,7 +99,7 @@ const Days = () => {
       let rightCrop = day.dayOfMonth === fullDaysInMonth;
       const isFirstDayOfMonth = day.dayOfMonth === 1;
       const isLastDayOfMonth = day.dayOfMonth === fullDaysInMonth;
-      const isToday = areDatesOnSameDay(day.date, today);
+      const isToday = areDatesOnSameDay(day.date, today, calendar);
       let inRange = false;
       let isSelected = false;
       let isCrop = false;
@@ -109,8 +109,12 @@ const Days = () => {
 
       if (mode === 'range') {
         rightCrop = false;
-        const selectedStartDay = areDatesOnSameDay(day.date, startDate);
-        const selectedEndDay = areDatesOnSameDay(day.date, endDate);
+        const selectedStartDay = areDatesOnSameDay(
+          day.date,
+          startDate,
+          calendar
+        );
+        const selectedEndDay = areDatesOnSameDay(day.date, endDate, calendar);
         isSelected = selectedStartDay || selectedEndDay;
         inRange = isDateBetween(day.date, { startDate, endDate }, calendar);
 
@@ -134,7 +138,9 @@ const Days = () => {
         rangeEnd = inRange && rightCrop;
       } else if (mode === 'multiple') {
         const safeDates = dates || [];
-        isSelected = safeDates.some((d) => areDatesOnSameDay(day.date, d));
+        isSelected = safeDates.some((d) =>
+          areDatesOnSameDay(day.date, d, calendar)
+        );
 
         // if the selected days in a row, implements range mode style to selected days
         if (multiRangeMode) {
@@ -142,10 +148,10 @@ const Days = () => {
           const tomorrow = getDayjs(day.date, calendar).add(1, 'day');
 
           const yesterdaySelected = safeDates.some((d) =>
-            areDatesOnSameDay(d, yesterday)
+            areDatesOnSameDay(d, yesterday, calendar)
           );
           const tomorrowSelected = safeDates.some((d) =>
-            areDatesOnSameDay(d, tomorrow)
+            areDatesOnSameDay(d, tomorrow, calendar)
           );
 
           // Reset all flags
@@ -187,7 +193,7 @@ const Days = () => {
           rangeEnd = inRange && rightCrop;
         }
       } else if (mode === 'single') {
-        isSelected = areDatesOnSameDay(day.date, date);
+        isSelected = areDatesOnSameDay(day.date, date, calendar);
       }
 
       return {

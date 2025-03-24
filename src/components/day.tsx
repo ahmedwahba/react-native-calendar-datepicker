@@ -161,11 +161,11 @@ const Day = ({
 
   return (
     <View style={defaultStyles.dayWrapper}>
+      {RangeFill}
       <View
         style={[style.dayCell, styles.day_cell]}
         className={classNames.day_cell}
       >
-        {RangeFill}
         {components.Day ? (
           <Pressable
             disabled={isDisabled}

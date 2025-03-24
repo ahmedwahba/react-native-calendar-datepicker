@@ -428,39 +428,41 @@ const DateTimePicker = (
           });
         } else if (mode === 'range') {
           // set time to 00:00:00
-          let start = removeTime(stateRef.current.startDate, timeZone);
-          let end = removeTime(stateRef.current.endDate, timeZone);
-          const selected = removeTime(selectedDate, timeZone);
+          let start = removeTime(
+            stateRef.current.startDate,
+            timeZone,
+            calendar
+          );
+          let end = removeTime(stateRef.current.endDate, timeZone, calendar);
+          const selected = removeTime(selectedDate, timeZone, calendar);
           let isStart: boolean = true;
           let isReset: boolean = false;
 
+          const selectedUnix = dateToUnix(selected, calendar);
+          const startUnix = dateToUnix(start, calendar);
+          const endUnix = dateToUnix(end, calendar);
+
           if (
-            dateToUnix(selected) !== dateToUnix(end) &&
-            dateToUnix(selected) >= dateToUnix(start) &&
-            dateToUnix(start) !== dateToUnix(end)
+            selectedUnix !== endUnix &&
+            selectedUnix >= startUnix &&
+            startUnix !== endUnix
           ) {
             isStart = false;
-          } else if (start && dateToUnix(selected) === dateToUnix(start)) {
+          } else if (start && selectedUnix === startUnix) {
             isReset = true;
           }
 
           if (start && end) {
-            if (
-              dateToUnix(start) === dateToUnix(end) &&
-              dateToUnix(selected) > dateToUnix(start)
-            ) {
+            if (startUnix === endUnix && selectedUnix > startUnix) {
               isStart = false;
             }
 
-            if (
-              dateToUnix(selected) > dateToUnix(start) &&
-              dateToUnix(selected) === dateToUnix(end)
-            ) {
+            if (selectedUnix > startUnix && selectedUnix === endUnix) {
               end = undefined;
             }
           }
 
-          if (start && !end && dateToUnix(selected) < dateToUnix(start)) {
+          if (start && !end && selectedUnix < startUnix) {
             end = start;
           }
 
@@ -479,7 +481,7 @@ const DateTimePicker = (
               'day'
             );
 
-            if (dateToUnix(selected) === dateToUnix(start)) {
+            if (selectedUnix === startUnix) {
               isReset = true;
             } else if (
               (max && numberOfDays > max) ||
@@ -515,10 +517,14 @@ const DateTimePicker = (
             .tz(getDayjs(selectedDate, calendar), timeZone)
             .startOf('day');
 
-          const exists = safeDates.some((ed) => areDatesOnSameDay(ed, newDate));
+          const exists = safeDates.some((ed) =>
+            areDatesOnSameDay(ed, newDate, calendar)
+          );
 
           const newDates = exists
-            ? safeDates.filter((ed) => !areDatesOnSameDay(ed, newDate))
+            ? safeDates.filter(
+                (ed) => !areDatesOnSameDay(ed, newDate, calendar)
+              )
             : [...safeDates, newDate];
 
           if (max && newDates.length > max) {

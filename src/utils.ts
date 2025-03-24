@@ -161,16 +161,21 @@ export const getDateYear = (date: DateType, calendar?: CalendarType) =>
  *
  * @param a - date to check
  * @param b - date to check
+ * @param {CalendarType} [calendar] - Optional calendar type to use ('islamic' for Hijri calendar)
  *
  * @returns true if dates are on the same day, false otherwise
  */
-export function areDatesOnSameDay(a: DateType, b: DateType) {
+export function areDatesOnSameDay(
+  a: DateType,
+  b: DateType,
+  calendar?: CalendarType
+) {
   if (!a || !b) {
     return false;
   }
 
-  const date_a = dayjs(a).format(DATE_FORMAT);
-  const date_b = dayjs(b).format(DATE_FORMAT);
+  const date_a = getDayjs(a, calendar).format(DATE_FORMAT);
+  const date_b = getDayjs(b, calendar).format(DATE_FORMAT);
 
   return date_a === date_b;
 }
@@ -238,7 +243,7 @@ export function isDateDisabled(
   if (enabledDates) {
     if (Array.isArray(enabledDates)) {
       const isEnabled = enabledDates.some((enabledDate) =>
-        areDatesOnSameDay(date, enabledDate)
+        areDatesOnSameDay(date, enabledDate, calendar)
       );
       return !isEnabled;
     } else if (enabledDates instanceof Function) {
@@ -247,7 +252,7 @@ export function isDateDisabled(
   } else if (disabledDates) {
     if (Array.isArray(disabledDates)) {
       const isDisabled = disabledDates.some((disabledDate) =>
-        areDatesOnSameDay(date, disabledDate)
+        areDatesOnSameDay(date, disabledDate, calendar)
       );
       return isDisabled;
     } else if (disabledDates instanceof Function) {
@@ -456,25 +461,30 @@ export function getEndOfDay(date: DateType, calendar?: CalendarType): DateType {
  * Convert date to unix timestamp
  *
  * @param date - date to convert
+ * @param {CalendarType} [calendar] - Optional calendar type to use ('islamic' for Hijri calendar)
  *
  * @returns unix timestamp
  */
-export function dateToUnix(date: DateType): number {
-  return dayjs(date).unix();
+export function dateToUnix(date: DateType, calendar?: CalendarType): number {
+  return getDayjs(date, calendar).unix();
 }
 
 /**
  * Remove time from date
  *
  * @param date - date to remove time from
+ * @param {CalendarType} [calendar] - Optional calendar type to use ('islamic' for Hijri calendar)
  *
  * @returns date with time removed
  */
 export function removeTime(
   date: DateType,
-  timeZone: string | undefined
+  timeZone: string | undefined,
+  calendar?: CalendarType
 ): DateType {
-  return date ? dayjs.tz(date, timeZone).startOf('day') : undefined;
+  return date
+    ? getDayjs(dayjs.tz(date, timeZone).startOf('day'), calendar)
+    : undefined;
 }
 
 /**
