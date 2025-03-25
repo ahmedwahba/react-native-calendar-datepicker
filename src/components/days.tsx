@@ -66,9 +66,8 @@ const Days = () => {
   const daysGrid = useMemo(() => {
     let today = dayjs().tz(timeZone);
     if (calendar === 'islamic') {
-      today = dayjs().toCalendarSystem('islamic');
+      today = getDayjs(today, calendar);
     }
-    dayjs.tz.setDefault(timeZone);
 
     const {
       fullDaysInMonth,

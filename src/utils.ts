@@ -371,6 +371,38 @@ export const getYearRange = (year: number) => {
 };
 
 /**
+ * Determines the number of days in a specific month of the Islamic (Hijri) calendar.
+ *
+ * This function calculates the number of days in a given Hijri month by checking
+ * the last day's representation in the Islamic calendar. Most Hijri months are
+ * either 29 or 30 days long.
+ *
+ * @param {dayjs.Dayjs} date - A dayjs object representing a reference date in the Islamic calendar
+ * @param {number} month - The month number (0-11) to check the length of
+ * @returns {number} The number of days in the specified Hijri month (29 or 30)
+ *
+ * @example
+ * // Get the number of days in the 9th month (Ramadan) of the current Hijri year
+ * const daysInRamadan = getDaysInHijriMonth(dayjs().calendar('islamic'), 8);
+ *
+ * @example
+ * // Determine days in a specific Hijri month
+ * const specificMonth = getDaysInHijriMonth(dayjs('1445-04-01').toCalendarSystem('islamic'), 5);
+ *
+ * @note
+ * - The function uses the Umm al-Qura calendar system (en-SA locale)
+ * - Month indexing starts at 0 (0 = Muharram, 11 = Dhu al-Hijjah)
+ * - Relies on locale-specific Islamic calendar conversion
+ */
+export function getDaysInHijriMonth(date: dayjs.Dayjs, month: number): number {
+  const lastDay = date.month(month).date(30);
+  const lastHijriDay = new Date(lastDay.toString()).toLocaleDateString(
+    'en-SA-u-ca-islamic-umalqura'
+  );
+  return lastHijriDay.split('/')[0] === '30' ? 30 : 29;
+}
+
+/**
  * Get days in month
  *
  * @param date - date to get days in month from
@@ -387,9 +419,13 @@ export function getDaysInMonth(
   calendar?: CalendarType
 ) {
   const currentDate = getDayjs(date, calendar);
-  const daysInCurrentMonth = currentDate.daysInMonth();
+  let daysInCurrentMonth = currentDate.daysInMonth();
+  let prevMonthDays = currentDate.add(-1, 'month').daysInMonth();
+  if (calendar === 'islamic') {
+    daysInCurrentMonth = getDaysInHijriMonth(currentDate, currentDate.month());
+    prevMonthDays = getDaysInHijriMonth(currentDate, currentDate.month() - 1);
+  }
 
-  const prevMonthDays = currentDate.add(-1, 'month').daysInMonth();
   const firstDay = currentDate.date(1 - firstDayOfWeek);
   const prevMonthOffset = (firstDay as dayjs.Dayjs).day() % 7;
   const daysInPrevMonth = showOutsideDays ? prevMonthOffset : 0;
@@ -545,7 +581,7 @@ export const getMonthDays = (
   const prevDays = showOutsideDays
     ? Array.from({ length: prevMonthOffset }, (_, index) => {
         const number = index + (prevMonthDays - prevMonthOffset + 1);
-        const thisDay = date.add(-1, 'month').date(number);
+        const thisDay = date.month(date.month() - 1).date(number);
         return generateCalendarDay(
           number,
           thisDay as dayjs.Dayjs,
@@ -582,7 +618,7 @@ export const getMonthDays = (
 
   const nextDays = Array.from({ length: daysInNextMonth }, (_, index) => {
     const day = index + 1;
-    const thisDay = date.add(1, 'month').date(day);
+    const thisDay = date.month(date.month() + 1).date(day);
     return generateCalendarDay(
       day,
       thisDay as dayjs.Dayjs,
