@@ -1128,6 +1128,11 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
+"@calidy/dayjs-calendarsystems@^1.11.3":
+  version "1.11.3"
+  resolved "https://registry.yarnpkg.com/@calidy/dayjs-calendarsystems/-/dayjs-calendarsystems-1.11.3.tgz#9ede347cab4a17c2de92054e54a38c27bada8f88"
+  integrity sha512-zf/YhLib4wWaYy4yZIWhonl8BAba5zVYeL+spXdIlmt90JlU5cA3hlhN3t7gKbDf9hB016mWfGEyBttfO/fShw==
+
 "@commitlint/cli@^17.8.1":
   version "17.8.1"
   resolved "https://registry.yarnpkg.com/@commitlint/cli/-/cli-17.8.1.tgz#10492114a022c91dcfb1d84dac773abb3db76d33"

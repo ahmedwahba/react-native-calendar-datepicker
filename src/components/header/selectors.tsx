@@ -11,28 +11,33 @@ type Props = {
 };
 
 const Selectors = ({ position }: Props) => {
-  const { mode, calendarView, timePicker } = useCalendarContext();
+  const { mode, calendarView, timePicker, timePickerOptions } =
+    useCalendarContext();
+
+  const renderTimePicker = () =>
+    timePicker && mode === 'single' && calendarView !== 'year' ? (
+      <TimeButton />
+    ) : null;
 
   return (
     <View
       style={[
         defaultStyles.container,
-        // eslint-disable-next-line react-native/no-inline-styles
-        position === 'around'
-          ? { justifyContent: 'space-evenly' }
-          : {
-              justifyContent: 'space-between',
-              flexDirection: position === 'left' ? 'row-reverse' : 'row',
-            },
+        position === 'around' && defaultStyles.justifySpaceEvenly,
+        position === 'left' && defaultStyles.rowReverse,
       ]}
     >
-      <View style={defaultStyles.monthAndYear}>
+      <View
+        style={[
+          defaultStyles.monthAndYear,
+          position === 'left' && defaultStyles.rowReverse,
+        ]}
+      >
         {calendarView !== 'year' ? <MonthButton /> : null}
         <YearButton />
+        {timePickerOptions?.renderBesideSelectors && renderTimePicker()}
       </View>
-      {timePicker && mode === 'single' && calendarView !== 'year' ? (
-        <TimeButton />
-      ) : null}
+      {!timePickerOptions?.renderBesideSelectors && renderTimePicker()}
     </View>
   );
 };
@@ -44,10 +49,17 @@ const defaultStyles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   monthAndYear: {
     gap: 5,
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  rowReverse: {
+    flexDirection: 'row-reverse',
+  },
+  justifySpaceEvenly: {
+    justifyContent: 'space-evenly',
   },
 });

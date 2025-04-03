@@ -1,3 +1,9 @@
+## Note:
+
+##### This fork to enhance `react-native-ui-datepicker` to support Hijri calendar with the help of `@calidy/dayjs-calendarsystems` [calendar systems package](https://github.com/calidy-com/dayjs-calendarsystems) which extends Day.js library to allow the use of different non-gregorian calendar systems with many thanks for their great effort.
+
+## Intro
+
 <p align="center">
 <img src="/.github/images/rnui-datepicker.png" alt="react-native-ui-datepicker" />
 </p>
@@ -32,7 +38,9 @@ yarn add react-native-calendars-datepicker
 ## Basic Usage
 
 1. Import the component and default styles or classNames from  `react-native-calendars-datepicker`.
-2. Choose a selection mode using the `mode` prop. The available modes are: `single`, `range`, and `multiple`.
+2. Use the `calendar` prop to change between `islamic` and `gregory` which is the default in case no calendar passed.
+3. Choose a selection mode using the `mode` prop. The available modes are: `single`, `range`, and `multiple`.
+4. Use the `onChange` prop to handle date changes.
 
 ```jsx
 import { useState } from  'react';
@@ -98,12 +106,13 @@ export function Calendar() {
 
 ## Single Mode props
 
-| Name         | Type               | Description                                                   |
-| ------------ | ------------------ | ------------------------------------------------------------- |
-| `date`       | `DateType`         | Specifies the currently selected date.                        |
-| `onChange`   | `({date}) => void` | Callback function triggered when the date change.             |
-| `timePicker` | `boolean`          | Whether to enable the time picker.                            |
-| `use12Hours` | `boolean`          | Whether to use a 12-hour format (AM/PM) in the time picker.   |
+| Name                                      | Type               | Description                                                      |
+| ----------------------------------------- | ------------------ | ---------------------------------------------------------------- |
+| `date`                                    | `DateType`         | Specifies the currently selected date.                           |
+| `onChange`                                | `({date}) => void` | Callback function triggered when the date change.                |
+| `timePicker`                              | `boolean`          | Whether to enable the time picker.                               |
+| `timePickerOptions.renderBesideSelectors` | `boolean`          | whether to render the picker beside month & year selectors or justified withen row. |
+| `use12Hours`                              | `boolean`          | Whether to use a 12-hour format (AM/PM) in the time picker.      |
 
 ## Range Mode props
 

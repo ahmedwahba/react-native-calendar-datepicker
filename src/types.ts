@@ -153,6 +153,7 @@ export interface DatePickerBaseProps {
   firstDayOfWeek?: number;
   showOutsideDays?: boolean;
   timePicker?: boolean;
+  timePickerOptions?: TimePickerOptions;
   use12Hours?: boolean;
   initialView?: CalendarViews;
   containerHeight?: number;
@@ -176,6 +177,11 @@ export interface DatePickerBaseProps {
   year?: number;
   onMonthChange?: (month: number) => void;
   onYearChange?: (year: number) => void;
+}
+
+export interface TimePickerOptions {
+  /** whether to render the picker beside month & year selectors or justified withen row   */
+  renderBesideSelectors?: boolean;
 }
 
 export type Numerals =
