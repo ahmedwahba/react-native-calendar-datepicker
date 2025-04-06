@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import dayjs from 'dayjs';
 import { Pressable, Text, View } from 'react-native';
 import { useCalendarContext } from '../../calendar-context';
-import { getDayjs, isValidJalaliLocale } from '../../utils';
+import { isValidJalaliLocale } from '../../utils';
 
 const MonthButton = () => {
   const {
@@ -17,9 +17,9 @@ const MonthButton = () => {
     monthCaptionFormat,
   } = useCalendarContext();
   const date =
-    calendar === 'islamic'
-      ? getDayjs(currentDate, calendar)
-      : dayjs(currentDate).calendar(calendar);
+    calendar === 'jalali'
+      ? dayjs(currentDate).calendar(calendar)
+      : dayjs(currentDate).toCalendarSystem(calendar);
 
   const currentMonthText = date
     .locale(
