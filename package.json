@@ -1,6 +1,6 @@
 {
   "name": "react-native-calendars-datepicker",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Customizable date picker for React Native that supports Hijri calendar ",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -13,10 +13,10 @@
         "default": "./lib/module/index.js",
         "types": "./lib/typescript/index.d.ts"
       },
-       "require": {
+      "require": {
         "default": "./lib/commonjs/index.js",
         "types": "./lib/typescript/index.d.ts"
-       }
+      }
     }
   },
   "files": [
@@ -120,9 +120,9 @@
     "@types/react-native": "0.72.0"
   },
   "peerDependencies": {
+    "@calidy/dayjs-calendarsystems": "*",
     "react": "*",
-    "react-native": "*",
-    "@calidy/dayjs-calendarsystems": "*"
+    "react-native": "*"
   },
   "engines": {
     "node": ">= 18"
@@ -179,6 +179,7 @@
   },
   "dependencies": {
     "@calidy/dayjs-calendarsystems": "^1.11.3",
+    "@umalqura/core": "^0.0.7",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
     "jalali-plugin-dayjs": "^1.1.4",

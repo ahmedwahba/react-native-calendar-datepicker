@@ -12,6 +12,7 @@ import { twMerge } from 'tailwind-merge';
 import { useRef } from 'react';
 import { isEqual } from 'lodash';
 import { numeralSystems } from './numerals';
+import umalqura from '@umalqura/core';
 
 export const CALENDAR_FORMAT = 'YYYY-MM-DD HH:mm';
 export const DATE_FORMAT = 'YYYY-MM-DD';
@@ -378,28 +379,20 @@ export const getYearRange = (year: number) => {
  * either 29 or 30 days long.
  *
  * @param {dayjs.Dayjs} date - A dayjs object representing a reference date in the Islamic calendar
- * @param {number} month - The month number (0-11) to check the length of
  * @returns {number} The number of days in the specified Hijri month (29 or 30)
  *
  * @example
- * // Get the number of days in the 9th month (Ramadan) of the current Hijri year
- * const daysInRamadan = getDaysInHijriMonth(dayjs().calendar('islamic'), 8);
- *
- * @example
  * // Determine days in a specific Hijri month
- * const specificMonth = getDaysInHijriMonth(dayjs('1445-04-01').toCalendarSystem('islamic'), 5);
+ * const specificMonth = getDaysInHijriMonth(dayjs('1446-04-01').toCalendarSystem('islamic'));
  *
  * @note
- * - The function uses the Umm al-Qura calendar system (en-SA locale)
- * - Month indexing starts at 0 (0 = Muharram, 11 = Dhu al-Hijjah)
- * - Relies on locale-specific Islamic calendar conversion
+ * - The function uses the Umm al-Qura calendar system
+ * - Month indexing starts at 1 (1 = Muharram, 12 = Dhu al-Hijjah) so +1 is added
+ * - Relies on @umalqura/core calendar conversion
  */
-export function getDaysInHijriMonth(date: dayjs.Dayjs, month: number): number {
-  const lastDay = date.month(month).date(30);
-  const lastHijriDay = new Date(lastDay.toString()).toLocaleDateString(
-    'en-SA-u-ca-islamic-umalqura'
-  );
-  return lastHijriDay.split('/')[0] === '30' ? 30 : 29;
+export function getDaysInHijriMonth(date: dayjs.Dayjs): number {
+  const lastDay = umalqura(date.year(), date.month() + 1, 30);
+  return lastDay.hd === 30 ? 30 : 29;
 }
 
 /**
@@ -422,12 +415,21 @@ export function getDaysInMonth(
   let daysInCurrentMonth = currentDate.daysInMonth();
   let prevMonthDays = currentDate.add(-1, 'month').daysInMonth();
   if (calendar === 'islamic') {
-    daysInCurrentMonth = getDaysInHijriMonth(currentDate, currentDate.month());
-    prevMonthDays = getDaysInHijriMonth(currentDate, currentDate.month() - 1);
+    daysInCurrentMonth = getDaysInHijriMonth(currentDate);
+    prevMonthDays = getDaysInHijriMonth(
+      currentDate.month(currentDate.month() - 1)
+    );
   }
 
   const firstDay = currentDate.date(1 - firstDayOfWeek);
-  const prevMonthOffset = (firstDay as dayjs.Dayjs).day() % 7;
+  let prevMonthOffset = (firstDay as dayjs.Dayjs).day() % 7;
+  if (calendar === 'islamic') {
+    prevMonthOffset = umalqura(
+      currentDate.year(),
+      currentDate.month() + 1,
+      1
+    ).dayOfWeek;
+  }
   const daysInPrevMonth = showOutsideDays ? prevMonthOffset : 0;
   const monthDaysOffset = prevMonthOffset + daysInCurrentMonth;
   const daysInNextMonth = showOutsideDays
