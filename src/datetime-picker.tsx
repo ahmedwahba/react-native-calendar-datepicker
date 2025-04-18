@@ -43,6 +43,7 @@ import { usePrevious } from './hooks/use-previous';
 import jalaliday from 'jalali-plugin-dayjs';
 import calendarSystems from '@calidy/dayjs-calendarsystems';
 import HijriCalendarSystem from '@calidy/dayjs-calendarsystems/calendarSystems/HijriCalendarSystem';
+import toObject from 'dayjs/plugin/toObject';
 
 dayjs.extend(localeData);
 dayjs.extend(relativeTime);
@@ -51,6 +52,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(duration);
 dayjs.extend(jalaliday);
+dayjs.extend(toObject);
 
 dayjs.extend(calendarSystems);
 /* Register new calendar system, here I'm using Hijri for other sytems visit URL: https://github.com/calidy-com/dayjs-calendarsystems */
@@ -219,7 +221,7 @@ const DateTimePicker = (
       dates,
       calendarView: initialCalendarView,
       currentDate: initialDate,
-      currentYear: initialDate.year(),
+      currentYear: dayjs(initialDate).toObject().years,
       isRTL: calendar === 'jalali' || I18nManager.isRTL,
     };
   }, [
@@ -299,7 +301,7 @@ const DateTimePicker = (
     };
 
     dispatch({ type: CalendarActionKind.RESET_STATE, payload: newState });
-  }, [calendar]);
+  }, [calendar, initialState]);
 
   useEffect(() => {
     if (prevTimezone !== timeZone) {
@@ -314,53 +316,49 @@ const DateTimePicker = (
   useEffect(() => {
     if (mode === 'single') {
       let _date =
-        (date &&
-          (timePicker
-            ? dayjs.tz(date, timeZone)
-            : getStartOfDay(dayjs.tz(date, timeZone), calendar))) ??
-        date;
+        (date && (timePicker ? date : getStartOfDay(date, calendar))) ?? date;
 
-      if (_date && maxDate && dayjs.tz(_date, timeZone).isAfter(maxDate)) {
-        _date = dayjs.tz(maxDate, timeZone);
+      if (_date && maxDate && getDayjs(_date, calendar).isAfter(maxDate)) {
+        _date = getDayjs(maxDate, calendar);
       }
 
-      if (_date && minDate && dayjs.tz(_date, timeZone).isBefore(minDate)) {
-        _date = dayjs.tz(minDate, timeZone);
+      if (_date && minDate && getDayjs(_date, calendar).isBefore(minDate)) {
+        _date = getDayjs(minDate, calendar);
       }
 
       if (_date) {
         dispatch({
           type: CalendarActionKind.CHANGE_SELECTED_DATE,
-          payload: { date: getDayjs(_date, calendar) },
+          payload: { date: _date },
         });
       }
 
       if (prevTimezone !== timeZone) {
         (onChange as SingleChange)({
-          date: _date ? getDayjs(_date, calendar).toDate() : _date,
+          date: _date ? getDayjs(_date, calendar) : _date,
         });
       }
     } else if (mode === 'range') {
       let start = (
-        startDate ? dayjs.tz(startDate, timeZone) : startDate
+        startDate ? getDayjs(startDate, calendar) : startDate
       ) as DateType;
 
-      if (start && maxDate && dayjs.tz(start, timeZone).isAfter(maxDate)) {
-        start = dayjs.tz(maxDate, timeZone);
+      if (start && maxDate && getDayjs(start, calendar).isAfter(maxDate)) {
+        start = getDayjs(maxDate, calendar);
       }
 
-      if (start && minDate && dayjs.tz(start, timeZone).isBefore(minDate)) {
-        start = dayjs.tz(minDate, timeZone);
+      if (start && minDate && getDayjs(start, calendar).isBefore(minDate)) {
+        start = getDayjs(minDate, calendar);
       }
 
-      let end = (endDate ? dayjs.tz(endDate, timeZone) : endDate) as DateType;
+      let end = (endDate ? getDayjs(endDate, calendar) : endDate) as DateType;
 
-      if (end && maxDate && dayjs.tz(end, timeZone).isAfter(maxDate)) {
-        end = dayjs.tz(maxDate, timeZone);
+      if (end && maxDate && getDayjs(end, calendar).isAfter(maxDate)) {
+        end = getDayjs(maxDate, calendar);
       }
 
-      if (end && minDate && dayjs.tz(end, timeZone).isBefore(minDate)) {
-        end = dayjs.tz(minDate, timeZone);
+      if (end && minDate && getDayjs(end, calendar).isBefore(minDate)) {
+        end = getDayjs(minDate, calendar);
       }
 
       dispatch({
@@ -373,8 +371,8 @@ const DateTimePicker = (
 
       if (prevTimezone !== timeZone) {
         (onChange as RangeChange)({
-          startDate: start ? getDayjs(start, calendar).toDate() : start,
-          endDate: end ? getDayjs(end, calendar).toDate() : end,
+          startDate: start ? getDayjs(start, calendar) : start,
+          endDate: end ? getDayjs(end, calendar) : end,
         });
       }
     } else if (mode === 'multiple') {
@@ -389,7 +387,7 @@ const DateTimePicker = (
 
       if (prevTimezone !== timeZone) {
         (onChange as MultiChange)({
-          dates: _dates.map((item) => getDayjs(item, calendar).toDate()),
+          dates: _dates.map((item) => getDayjs(item, calendar)),
           change: 'updated',
         });
       }
@@ -418,16 +416,15 @@ const DateTimePicker = (
       if (onChange) {
         if (mode === 'single') {
           const newDate = timePicker
-            ? dayjs.tz(selectedDate, timeZone)
-            : dayjs.tz(getStartOfDay(selectedDate, calendar), timeZone);
-
+            ? selectedDate
+            : getStartOfDay(selectedDate, calendar);
           dispatch({
             type: CalendarActionKind.CHANGE_CURRENT_DATE,
             payload: newDate,
           });
 
           (onChange as SingleChange)({
-            date: newDate ? getDayjs(newDate, calendar).toDate() : newDate,
+            date: newDate ? getDayjs(newDate, calendar) : newDate,
           });
         } else if (mode === 'range') {
           // set time to 00:00:00
@@ -502,15 +499,11 @@ const DateTimePicker = (
             });
           } else {
             (onChange as RangeChange)({
-              startDate: isStart
-                ? getDayjs(selected, calendar).toDate()
-                : start
-                  ? dayjs.tz(start).toDate()
-                  : start,
+              startDate: isStart ? getDayjs(selected, calendar) : start,
               endDate: !isStart
-                ? dayjs.tz(getEndOfDay(selected, calendar), timeZone).toDate()
+                ? getEndOfDay(selected, calendar)
                 : end
-                  ? dayjs.tz(getEndOfDay(end, calendar), timeZone).toDate()
+                  ? getEndOfDay(end, calendar)
                   : end,
             });
           }
@@ -548,7 +541,7 @@ const DateTimePicker = (
         }
       }
     },
-    [mode, timePicker, min, max, timeZone]
+    [onChange, calendar, mode, timePicker, timeZone, min, max]
   );
 
   // set the active displayed month
@@ -620,13 +613,13 @@ const DateTimePicker = (
     if (month !== undefined && month >= 0 && month <= 11) {
       onSelectMonth(month);
     }
-  }, [month]);
+  }, [month, onSelectMonth]);
 
   useEffect(() => {
     if (year !== undefined && year >= 0) {
       onSelectYear(year);
     }
-  }, [year]);
+  }, [onSelectYear, year]);
 
   const memoizedStyles = useDeepCompareMemo({ ...styles }, [styles]);
 

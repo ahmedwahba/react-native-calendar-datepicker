@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useCalendarContext } from '../../calendar-context';
-import { formatNumber, getDateYear, getDayjs, getYearRange } from '../../utils';
+import { formatNumber, adjustDayjsHijriDate, getYearRange } from '../../utils';
 import dayjs from 'dayjs';
 
 const YearButton = () => {
@@ -19,11 +19,15 @@ const YearButton = () => {
   } = useCalendarContext();
 
   const years = getYearRange(currentYear);
-  let date;
-  if (calendar !== 'islamic') {
-    date = dayjs(currentDate).calendar(calendar);
-  } else {
-    date = getDayjs(currentDate, calendar);
+  let date =
+    calendar === 'jalali'
+      ? dayjs(currentDate).calendar(calendar)
+      : dayjs(currentDate).toCalendarSystem('gregory');
+  if (calendar === 'islamic') {
+    date =
+      (currentDate as any).$C === 'islamic'
+        ? (currentDate as dayjs.Dayjs)
+        : adjustDayjsHijriDate(currentDate as dayjs.Dayjs);
   }
 
   return (
@@ -31,7 +35,7 @@ const YearButton = () => {
       disabled={disableYearPicker}
       onPress={() => {
         setCalendarView(calendarView === 'year' ? 'day' : 'year');
-        onChangeYear(getDateYear(currentDate, calendar));
+        onChangeYear(date.year());
       }}
       testID="btn-year"
       accessibilityRole="button"

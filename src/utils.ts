@@ -1,4 +1,4 @@
-import dayjs from 'dayjs';
+import dayjs, { isDayjs } from 'dayjs';
 import type {
   DateType,
   CalendarDay,
@@ -59,6 +59,53 @@ export const getMonths = () => dayjs.months();
 
 export const getMonthName = (month: number) => dayjs.months()[month];
 
+export const convertHijriToGregorian = (umalquraDate: umalqura.UmAlQura) => {
+  return umalqura.$.hijriToGregorian(
+    umalquraDate.hy,
+    umalquraDate.hm,
+    umalquraDate.hd
+  );
+};
+
+export const adjustDayjsHijriDate = (
+  dayjsDate: dayjs.Dayjs,
+  hijriDate?: umalqura.UmAlQura
+): dayjs.Dayjs => {
+  let umalquraDate = hijriDate;
+  if (!umalquraDate && isDayjs(dayjsDate)) {
+    umalquraDate = umalqura(
+      new Date(dayjsDate.year(), dayjsDate.month(), dayjsDate.get('date'))
+    );
+  }
+  if (!umalquraDate) {
+    umalquraDate = umalqura(new Date(dayjs(dayjsDate).toDate()));
+  }
+  const gregoryDate = convertHijriToGregorian(umalquraDate);
+  let validDate;
+  if ((dayjsDate as any).$C === 'islamic') {
+    validDate = dayjsDate
+      .year(umalquraDate.hy)
+      .set('date', umalquraDate.hd)
+      .month(umalquraDate.hm - 1);
+  } else {
+    validDate = dayjs(dayjsDate)
+      .toCalendarSystem('islamic')
+      .year(umalquraDate.hy)
+      .month(umalquraDate.hm - 1);
+  }
+  (validDate as any).$M = umalquraDate.hm - 1;
+  (validDate as any).$C_M = umalquraDate.hm - 1;
+  (validDate as any).$D = umalquraDate.hd;
+  (validDate as any).$C_D = umalquraDate.hd;
+  (validDate as any).$y = umalquraDate.hy;
+  (validDate as any).$C_y = umalquraDate.hy;
+  (validDate as any).$G_D = gregoryDate.gd;
+  (validDate as any).$G_M = gregoryDate.gm;
+  (validDate as any).$G_y = gregoryDate.gy;
+  (validDate as any).$W = umalquraDate.dayOfWeek;
+  return validDate;
+};
+
 /**
  * Converts a date to a dayjs object with optional Islamic calendar support.
  *
@@ -79,7 +126,12 @@ export const getDayjs = (date: DateType, calendar?: CalendarType) => {
     date = new Date();
   }
   if (calendar === 'islamic') {
-    return dayjs(date).toCalendarSystem('islamic');
+    if (date && (date as any).$C === 'islamic') {
+      return date as dayjs.Dayjs;
+    }
+    const dayjsHijri = adjustDayjsHijriDate(date as dayjs.Dayjs);
+
+    return dayjsHijri as dayjs.Dayjs;
   }
   return dayjs(date);
 };
@@ -100,7 +152,6 @@ export const getMonthsArray = ({
     calendar === 'jalali' ? getJalaliMonths(locale) : dayjs.months();
   const monthShortNames =
     calendar === 'jalali' ? getJalaliMonths(locale) : dayjs.monthsShort();
-
   return monthNames.map((name, index) => ({
     index,
     name: {
@@ -155,7 +206,7 @@ export const getDateMonth = (date: DateType, calendar?: CalendarType) =>
   getDayjs(date, calendar).month();
 
 export const getDateYear = (date: DateType, calendar?: CalendarType) =>
-  getDayjs(date, calendar).year();
+  getDayjs(date as dayjs.Dayjs, calendar).year();
 
 /**
  * Check if two dates are on the same day
@@ -520,9 +571,14 @@ export function removeTime(
   timeZone: string | undefined,
   calendar?: CalendarType
 ): DateType {
-  return date
-    ? getDayjs(dayjs.tz(date, timeZone).startOf('day'), calendar)
-    : undefined;
+  if (!date) {
+    return undefined;
+  }
+  if (calendar === 'islamic') {
+    return (date as dayjs.Dayjs).startOf('day');
+  }
+
+  return dayjs(dayjs.tz(date, timeZone).startOf('day'));
 }
 
 /**
@@ -543,6 +599,22 @@ export const getParsedDate = (date: DateType, calendar?: CalendarType) => {
     minute: dayjsDate.minute(),
     period: dayjsDate.format('A'),
   };
+};
+
+const getPrevHijriDate = (date: dayjs.Dayjs, dateDay: number) => {
+  const prevMonthIndex = date.month() === 0 ? 11 : date.month() - 1;
+  const year = date.month() === 0 ? date.year() - 1 : date.year();
+  const hijriDate = umalqura(year, prevMonthIndex, dateDay);
+
+  return adjustDayjsHijriDate(date, hijriDate);
+};
+
+const getNextHijriDate = (date: dayjs.Dayjs, dateDay: number) => {
+  const nextMonthIndex = date.month() === 11 ? 0 : date.month() + 1;
+  const year = date.month() === 11 ? date.year() + 1 : date.year();
+  const hijriDate = umalqura(year, nextMonthIndex, dateDay);
+
+  return adjustDayjsHijriDate(date, hijriDate);
 };
 
 /**
@@ -582,10 +654,14 @@ export const getMonthDays = (
 
   const prevDays = showOutsideDays
     ? Array.from({ length: prevMonthOffset }, (_, index) => {
-        const number = index + (prevMonthDays - prevMonthOffset + 1);
-        const thisDay = date.month(date.month() - 1).date(number);
+        const prevDay = index + (prevMonthDays - prevMonthOffset + 1);
+        let thisDay = date.month(date.month() - 1).set('date', prevDay);
+        if (calendar === 'islamic') {
+          thisDay = getPrevHijriDate(date, prevDay);
+        }
+
         return generateCalendarDay(
-          number,
+          prevDay,
           thisDay as dayjs.Dayjs,
           minDate,
           maxDate,
@@ -602,7 +678,11 @@ export const getMonthDays = (
 
   const currentDays = Array.from({ length: daysInCurrentMonth }, (_, index) => {
     const day = index + 1;
-    const thisDay = date.date(day);
+    let thisDay = date.set('date', day);
+    if (calendar === 'islamic') {
+      const hijriDate = umalqura(date.year(), date.month() + 1, day);
+      thisDay = adjustDayjsHijriDate(date, hijriDate);
+    }
     return generateCalendarDay(
       day,
       thisDay as dayjs.Dayjs,
@@ -620,7 +700,10 @@ export const getMonthDays = (
 
   const nextDays = Array.from({ length: daysInNextMonth }, (_, index) => {
     const day = index + 1;
-    const thisDay = date.month(date.month() + 1).date(day);
+    let thisDay = date.month(date.month() + 1).date(day);
+    if (calendar === 'islamic') {
+      thisDay = getNextHijriDate(date, day);
+    }
     return generateCalendarDay(
       day,
       thisDay as dayjs.Dayjs,
@@ -637,6 +720,11 @@ export const getMonthDays = (
   });
 
   return [...prevDays, ...currentDays, ...nextDays];
+};
+
+const getStartOfHijriWeek = (date: dayjs.Dayjs) => {
+  const hijriDate = umalqura(date.year(), date.month() + 1, date.get('date'));
+  return adjustDayjsHijriDate(date, hijriDate.startOf('week'));
 };
 
 /**
@@ -668,9 +756,12 @@ const generateCalendarDay = (
   numerals: Numerals,
   calendar?: CalendarType
 ) => {
-  const startOfWeek = getDayjs(date, calendar)
+  let startOfWeek = getDayjs(date, calendar)
     .startOf('week')
     .add(firstDayOfWeek, 'day');
+  if (calendar === 'islamic') {
+    startOfWeek = getStartOfHijriWeek(date);
+  }
 
   return {
     text: formatNumber(number, numerals),
