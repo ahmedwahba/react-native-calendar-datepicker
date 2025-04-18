@@ -604,7 +604,7 @@ export const getParsedDate = (date: DateType, calendar?: CalendarType) => {
 const getPrevHijriDate = (date: dayjs.Dayjs, dateDay: number) => {
   const prevMonthIndex = date.month() === 0 ? 11 : date.month() - 1;
   const year = date.month() === 0 ? date.year() - 1 : date.year();
-  const hijriDate = umalqura(year, prevMonthIndex, dateDay);
+  const hijriDate = umalqura(year, prevMonthIndex + 1, dateDay);
 
   return adjustDayjsHijriDate(date, hijriDate);
 };
@@ -612,7 +612,7 @@ const getPrevHijriDate = (date: dayjs.Dayjs, dateDay: number) => {
 const getNextHijriDate = (date: dayjs.Dayjs, dateDay: number) => {
   const nextMonthIndex = date.month() === 11 ? 0 : date.month() + 1;
   const year = date.month() === 11 ? date.year() + 1 : date.year();
-  const hijriDate = umalqura(year, nextMonthIndex, dateDay);
+  const hijriDate = umalqura(year, nextMonthIndex + 1, dateDay);
 
   return adjustDayjsHijriDate(date, hijriDate);
 };
