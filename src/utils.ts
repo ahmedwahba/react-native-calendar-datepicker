@@ -648,19 +648,28 @@ export const getParsedDate = (date: DateType, calendar?: CalendarType) => {
 
 export const addTime = (
   date: dayjs.Dayjs,
-  hour: number,
-  minute: number,
-  calendar?: CalendarType
+  calendar?: CalendarType,
+  hour?: number,
+  minute?: number
 ) => {
   if (calendar === 'islamic') {
     let hijriDateTime = date;
-    (hijriDateTime as any).$H = hour;
-    (hijriDateTime as any).$m = minute;
+    if (hour) (hijriDateTime as any).$H = hour;
+    if (minute) (hijriDateTime as any).$m = minute;
 
     return hijriDateTime;
   }
+  if (hour && minute) {
+    return date.hour(hour).minute(minute);
+  }
+  if (hour && !minute) {
+    return date.hour(hour);
+  }
+  if (minute && !hour) {
+    return date.minute(minute);
+  }
 
-  return date.hour(hour).minute(minute);
+  return date.hour(0).minute(0);
 };
 
 const getPrevHijriDate = (date: dayjs.Dayjs, dateDay: number) => {

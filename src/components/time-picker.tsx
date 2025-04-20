@@ -11,9 +11,8 @@ import {
 import { useCalendarContext } from '../calendar-context';
 import Wheel from './time-picker/wheel';
 import { CONTAINER_HEIGHT } from '../enums';
-import { getParsedDate, formatNumber } from '../utils';
+import { getParsedDate, formatNumber, addTime, getDayjs } from '../utils';
 import { Numerals, PickerOption } from '../types';
-import dayjs from 'dayjs';
 import PeriodPicker from './time-picker/period-picker';
 
 export type Period = 'AM' | 'PM';
@@ -39,9 +38,9 @@ const TimePicker = () => {
     onSelectDate,
     styles,
     classNames,
-    timeZone,
     numerals = 'latn',
     use12Hours,
+    calendar,
   } = useCalendarContext();
 
   const hours = useMemo(
@@ -64,18 +63,28 @@ const TimePicker = () => {
           hour24 = 0;
         }
       }
-      const newDate = dayjs.tz(date, timeZone).hour(hour24).minute(minute);
+      const newDate = addTime(
+        getDayjs(date, calendar),
+        calendar,
+        hour24,
+        minute
+      );
       onSelectDate(newDate);
     },
-    [date, onSelectDate, timeZone, use12Hours, period, minute]
+    [use12Hours, date, calendar, minute, onSelectDate, period]
   );
 
   const handleChangeMinute = useCallback(
     (value: number) => {
-      const newDate = dayjs.tz(date, timeZone).minute(value);
+      const newDate = addTime(
+        getDayjs(date, calendar),
+        calendar,
+        undefined,
+        value
+      );
       onSelectDate(newDate);
     },
-    [date, onSelectDate, timeZone]
+    [calendar, date, onSelectDate]
   );
 
   const handlePeriodChange = useCallback(
@@ -89,10 +98,14 @@ const TimePicker = () => {
         newHour = hour12;
       }
 
-      const newDate = dayjs.tz(date || currentDate, timeZone).hour(newHour);
+      const newDate = addTime(
+        getDayjs(date || currentDate, calendar),
+        calendar,
+        newHour
+      );
       onSelectDate(newDate);
     },
-    [date, currentDate, onSelectDate, timeZone, hour, hour12]
+    [hour12, hour, date, currentDate, calendar, onSelectDate]
   );
 
   const timePickerContainerStyle: ViewStyle = useMemo(

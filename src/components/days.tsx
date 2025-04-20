@@ -53,9 +53,9 @@ const Days = () => {
     (selectedDate: DateType) => {
       const newDate = addTime(
         getDayjs(selectedDate, calendar),
+        calendar,
         hour,
-        minute,
-        calendar
+        minute
       );
 
       onSelectDate(newDate);
