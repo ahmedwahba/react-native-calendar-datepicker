@@ -232,6 +232,33 @@ export function areDatesOnSameDay(
   return date_a === date_b;
 }
 
+export function isHijriDateBetween(
+  date: DateType,
+  startDate: DateType,
+  endDate: DateType
+) {
+  const current = getDayjs(date, 'islamic');
+  const start = startDate as dayjs.Dayjs;
+  const end = endDate as dayjs.Dayjs;
+
+  const isBeforeEnd = () => {
+    if (current.year() > end.year()) return false;
+    if (current.year() < end.year()) return true;
+    if (current.month() > end.month()) return false;
+    if (current.month() < end.month()) return true;
+    return current.date() <= end.date();
+  };
+
+  const isAfterStart = () => {
+    if (start.year() > current.year()) return false;
+    if (start.year() < current.year()) return true;
+    if (start.month() > current.month()) return false;
+    if (start.month() < current.month()) return true;
+    return start.date() <= current.date();
+  };
+  return isAfterStart() && isBeforeEnd();
+}
+
 /**
  * Check if date is between two dates
  *
@@ -255,10 +282,14 @@ export function isDateBetween(
   if (!startDate || !endDate) {
     return false;
   }
+  let isBetween =
+    getDayjs(date, calendar) <= endDate &&
+    getDayjs(date, calendar) >= startDate;
+  if (calendar === 'islamic') {
+    isBetween = isHijriDateBetween(date, startDate, endDate);
+  }
 
-  return (
-    getDayjs(date, calendar) <= endDate && getDayjs(date, calendar) >= startDate
-  );
+  return isBetween;
 }
 
 /**
@@ -555,6 +586,17 @@ export function getEndOfDay(date: DateType, calendar?: CalendarType): DateType {
  * @returns unix timestamp
  */
 export function dateToUnix(date: DateType, calendar?: CalendarType): number {
+  if (calendar === 'islamic' && date) {
+    const dayjsDate = date as dayjs.Dayjs;
+    const umalquraDate = umalqura(
+      dayjsDate.year(),
+      dayjsDate.month() + 1,
+      dayjsDate.get('date')
+    );
+    const gregoryDate = convertHijriToGregorian(umalquraDate);
+    const dateTime = new Date(gregoryDate.gy, gregoryDate.gm, gregoryDate.gd);
+    return dateTime.getTime() / 1000;
+  }
   return getDayjs(date, calendar).unix();
 }
 
@@ -575,7 +617,10 @@ export function removeTime(
     return undefined;
   }
   if (calendar === 'islamic') {
-    return (date as dayjs.Dayjs).startOf('day');
+    let hijriDate = date as dayjs.Dayjs;
+    (hijriDate as any).$H = 0;
+    (hijriDate as any).$m = 0;
+    return hijriDate;
   }
 
   return dayjs(dayjs.tz(date, timeZone).startOf('day'));
@@ -599,6 +644,23 @@ export const getParsedDate = (date: DateType, calendar?: CalendarType) => {
     minute: dayjsDate.minute(),
     period: dayjsDate.format('A'),
   };
+};
+
+export const addTime = (
+  date: dayjs.Dayjs,
+  hour: number,
+  minute: number,
+  calendar?: CalendarType
+) => {
+  if (calendar === 'islamic') {
+    let hijriDateTime = date;
+    (hijriDateTime as any).$H = hour;
+    (hijriDateTime as any).$m = minute;
+
+    return hijriDateTime;
+  }
+
+  return date.hour(hour).minute(minute);
 };
 
 const getPrevHijriDate = (date: dayjs.Dayjs, dateDay: number) => {

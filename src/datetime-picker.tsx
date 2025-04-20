@@ -492,6 +492,21 @@ const DateTimePicker = (
             }
           }
 
+          const setEndDate = () => {
+            if (!isStart) {
+              return calendar === 'islamic'
+                ? selected
+                : getEndOfDay(selected, calendar);
+            } else {
+              if (end) {
+                return calendar === 'islamic'
+                  ? end
+                  : getEndOfDay(end, calendar);
+              }
+              return end;
+            }
+          };
+
           if (isReset) {
             (onChange as RangeChange)({
               startDate: undefined,
@@ -500,11 +515,7 @@ const DateTimePicker = (
           } else {
             (onChange as RangeChange)({
               startDate: isStart ? getDayjs(selected, calendar) : start,
-              endDate: !isStart
-                ? getEndOfDay(selected, calendar)
-                : end
-                  ? getEndOfDay(end, calendar)
-                  : end,
+              endDate: setEndDate(),
             });
           }
         } else if (mode === 'multiple') {

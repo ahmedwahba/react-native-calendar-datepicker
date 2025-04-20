@@ -9,8 +9,8 @@ import {
   getDaysInMonth,
   areDatesOnSameDay,
   isDateBetween,
-  getDate,
   getDayjs,
+  addTime,
 } from '../utils';
 import Weekdays from './weekdays';
 import { DateType } from 'src/types';
@@ -51,7 +51,12 @@ const Days = () => {
 
   const handleSelectDate = useCallback(
     (selectedDate: DateType) => {
-      const newDate = getDate(selectedDate, calendar).hour(hour).minute(minute);
+      const newDate = addTime(
+        getDayjs(selectedDate, calendar),
+        hour,
+        minute,
+        calendar
+      );
 
       onSelectDate(newDate);
     },
