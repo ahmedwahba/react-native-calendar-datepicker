@@ -10,10 +10,12 @@ import DateTimePicker, {
   DateType,
   useDefaultStyles,
 } from 'react-native-ui-datepicker';
+import dayjs, { Dayjs } from 'dayjs';
 
 export default function BottomSheetScreen() {
   const defaultStyles = useDefaultStyles();
   const [date, setDate] = useState<DateType>();
+  const [isGregorian, setIsGregorian] = useState<boolean>(true);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [dates, setDates] = useState<DateType[]>();
   const [range, setRange] = useState<{
@@ -38,16 +40,20 @@ export default function BottomSheetScreen() {
           //onChange={handleSheetChanges}
         >
           <BottomSheetView style={styles.contentContainer}>
+          <Button onPress={() => setIsGregorian(!isGregorian)} title="Toggle Gregorian/Islamic" />
+          <Button  title="reset" onPress={() => {setDate(undefined)}}  />
             <DateTimePicker
               styles={defaultStyles}
               mode="single"
               date={date}
-              onChange={(params) => setDate(params.date)}
-              firstDayOfWeek={6}
+              // startDate={range.startDate}
+              // endDate={range.endDate}
+              onChange={(params) => {setDate(params.date); console.log('date:', params)}}
+              // firstDayOfWeek={6}
               multiRangeMode
               showOutsideDays
               timePicker
-              //calendar="jalali"
+              calendar={isGregorian ? "gregory" : "islamic"}
               //locale="en"
               //numerals="arabext"
             />
