@@ -1,8 +1,8 @@
 {
-  "name": "react-native-ui-datepicker-demo",
+  "name": "react-native-calendar-datepicker-demo",
   "main": "expo-router/entry",
   "version": "1.0.0",
-  "homepage": "https://farhoudshapouran.github.io/react-native-ui-datepicker",
+  "homepage": "https://ahmedwahba.github.io/react-native-calendar-datepicker",
   "scripts": {
     "start": "expo start -c",
     "reset-project": "node ./scripts/reset-project.js",
@@ -11,7 +11,7 @@
     "web": "expo start --web",
     "test": "jest --watchAll",
     "lint": "expo lint",
-    "predeploy": "expo export -p web",
+    "predeploy": "npx expo export -p web",
     "deploy": "gh-pages --nojekyll -d dist"
   },
   "jest": {

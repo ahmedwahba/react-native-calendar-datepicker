@@ -148,10 +148,17 @@ export const getMonthsArray = ({
   calendar: CalendarType;
   locale: string;
 }): CalendarMonth[] => {
-  const monthNames =
-    calendar === 'jalali' ? getJalaliMonths(locale) : dayjs.months();
-  const monthShortNames =
-    calendar === 'jalali' ? getJalaliMonths(locale) : dayjs.monthsShort();
+  let monthNames: string[] = dayjs.months();
+  let monthShortNames: string[] = dayjs.monthsShort();
+    if (calendar === 'islamic') {
+      umalqura.locale(locale);
+      monthNames = umalqura.months();
+      monthShortNames = umalqura.monthsShort();
+    }
+    else if (calendar === 'jalali') {
+      monthNames = getJalaliMonths(locale);
+      monthShortNames = getJalaliMonths(locale);
+    }
   return monthNames.map((name, index) => ({
     index,
     name: {
