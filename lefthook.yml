@@ -3,12 +3,12 @@ pre-commit:
   commands:
     lint:
       glob: "*.{js,ts,jsx,tsx}"
-      run: npx eslint {files}
+      run: /bin/bash -l -c "npx eslint {files}"
     types:
       glob: "*.{js,ts,jsx,tsx}"
-      run: npx tsc --noEmit
+      run: /bin/bash -l -c "npx tsc --noEmit"
 commit-msg:
   parallel: true
   commands:
     commitlint:
-      run: npx commitlint --edit
+      run: /bin/bash -l -c "npx commitlint --edit"
