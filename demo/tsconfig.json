@@ -4,7 +4,7 @@
     "strict": true,
     "paths": {
       "@/*": ["./*"],
-      "react-native-ui-datepicker": ["../src"]
+      "react-native-calendar-datepicker": ["../src"]
     }
   },
   "include": [

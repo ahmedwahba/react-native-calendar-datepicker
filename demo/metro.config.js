@@ -6,6 +6,9 @@ const projectRoot = __dirname;
 const libraryRoot = path.resolve(projectRoot, '..');
 
 const config = getDefaultConfig(projectRoot);
+const { resolver: { sourceExts } } = config;
+
+sourceExts.push('ts', 'tsx');
 
 if (config.resolver) {
   // 1. Watch all files within the Repository
