@@ -5,23 +5,30 @@ runs:
   using: composite
   steps:
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
-        node-version: 18  # Force Node.js 18 instead of using .nvmrc
+        node-version: 18
+
+    - name: Get yarn cache directory path
+      id: yarn-cache-dir-path
+      run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+      shell: bash
 
     - name: Cache dependencies
+      uses: actions/cache@v4
       id: yarn-cache
-      uses: actions/cache@v3
       with:
         path: |
+          ${{ steps.yarn-cache-dir-path.outputs.dir }}
           **/node_modules
         key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
         restore-keys: |
           ${{ runner.os }}-yarn-
 
-    - name: Install dependencies
-      if: steps.yarn-cache.outputs.cache-hit != 'true'
-      run: |
-        yarn install --cwd example --frozen-lockfile
-        yarn install --frozen-lockfile
+    - name: Install root dependencies
+      run: yarn install --frozen-lockfile
+      shell: bash
+
+    - name: Install example dependencies
+      run: yarn install --cwd example --frozen-lockfile
       shell: bash

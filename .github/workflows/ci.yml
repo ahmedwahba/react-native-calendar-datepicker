@@ -13,7 +13,7 @@ jobs:
   #   runs-on: ubuntu-latest
   #   steps:
   #     - name: Checkout repository
-  #       uses: actions/checkout@v3
+  #       uses: actions/checkout@v4
 
   #     - name: Setup project
   #       uses: ./.github/actions/setup
@@ -24,26 +24,26 @@ jobs:
   #     - name: Typecheck files
   #       run: yarn typecheck
 
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup project
-        uses: ./.github/actions/setup
-
-      - name: Run unit tests
-        run: yarn test
-
-  # build:
+  # test:
   #   runs-on: ubuntu-latest
   #   steps:
   #     - name: Checkout repository
-  #       uses: actions/checkout@v3
+  #       uses: actions/checkout@v4
 
   #     - name: Setup project
   #       uses: ./.github/actions/setup
 
-  #     - name: Build package
-  #       run: yarn prepack
+  #     - name: Run unit tests
+  #       run: yarn test
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup project
+        uses: ./.github/actions/setup
+
+      - name: Build package
+        run: yarn prepack
