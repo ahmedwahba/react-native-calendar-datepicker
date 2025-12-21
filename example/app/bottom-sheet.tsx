@@ -44,17 +44,19 @@ export default function BottomSheetScreen() {
           <Button  title="reset" onPress={() => {setDate(undefined)}}  />
             <DateTimePicker
               styles={defaultStyles}
-              mode="single"
-              date={date}
-              // startDate={range.startDate}
-              // endDate={range.endDate}
-              onChange={(params) => {setDate(params.date); console.log('date:', params)}}
+              mode="range"
+              minDate={new Date(2024, 11, 20)}
+              maxDate={new Date(2026, 11, 20)}
+              // date={date}
+              startDate={range.startDate}
+              endDate={range.endDate}
+              onChange={(params) => {setRange(params); console.log('date:', params.startDate)}}
               // firstDayOfWeek={6}
               multiRangeMode
               showOutsideDays
-              timePicker
+              //timePicker
               calendar={isGregorian ? "gregory" : "islamic"}
-              //locale="en"
+              locale="ar"
               //numerals="arabext"
             />
           </BottomSheetView>

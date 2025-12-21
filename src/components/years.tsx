@@ -42,7 +42,7 @@ const Years = () => {
       const isSelected = year === selectedYear;
       const isActivated = year === activeYear;
 
-      const isDisabled = isYearDisabled(year, { minDate, maxDate });
+      const isDisabled = isYearDisabled(year, { minDate, maxDate }, calendar);
 
       const containerStyle = StyleSheet.flatten([
         style.year,
