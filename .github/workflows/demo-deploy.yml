@@ -52,7 +52,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Install demo dependencies
-        run: yarn install --cwd demo --frozen-lockfile
+        run: yarn install --cwd demo
 
       - name: Build demo
         working-directory: ./demo
