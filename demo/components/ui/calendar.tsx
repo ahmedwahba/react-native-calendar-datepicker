@@ -4,7 +4,7 @@ import DateTimePicker, {
   CalendarDay,
   CalendarComponents,
   useDefaultClassNames,
-} from 'react-native-ui-datepicker';
+} from 'react-native-calendar-datepicker';
 import Feather from '@expo/vector-icons/Feather';
 import { cssInterop } from 'nativewind';
 

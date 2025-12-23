@@ -6,7 +6,7 @@ import {
   DateType,
   CalendarDay,
   CalendarComponents,
-} from 'react-native-ui-datepicker';
+} from 'react-native-calendar-datepicker';
 import { cn } from '@/lib/utils';
 import dayjs from 'dayjs';
 import Feather from '@expo/vector-icons/Feather';

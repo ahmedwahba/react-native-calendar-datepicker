@@ -15,7 +15,7 @@ export function GithubLink() {
   return (
     <View className="py-6">
       <Link
-        href="https://github.com/farhoudshapouran/react-native-ui-datepicker"
+        href="https://github.com/ahmedwahba/react-native-calendar-datepicker"
         target="_blank"
       >
         <View className="flex-row items-center gap-2">

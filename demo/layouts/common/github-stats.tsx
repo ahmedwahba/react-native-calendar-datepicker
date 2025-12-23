@@ -34,7 +34,7 @@ export function GithubStats() {
   const getStats = async () => {
     try {
       const response = await fetch(
-        'https://api.npmjs.org/downloads/point/last-month/react-native-ui-datepicker'
+        'https://api.npmjs.org/downloads/point/last-month/react-native-calendar-datepicker'
       );
       const json = await response.json();
       setData(json);
@@ -51,7 +51,7 @@ export function GithubStats() {
 
   return (
     <Link
-      href="https://github.com/farhoudshapouran/react-native-ui-datepicker"
+      href="https://github.com/ahmedwahba/react-native-calendar-datepicker"
       target="_blank"
     >
       <Button

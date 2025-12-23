@@ -9,7 +9,7 @@
 </p>
 
 
-DateTimePicker component for React Native that allows you to create a customizable datetime picker. The component uses extensive set of props that allows you to customizing the calendar based on your own UI design. Please visit [demo](https://farhoudshapouran.github.io/react-native-ui-datepicker/).
+DateTimePicker component for React Native that allows you to create a customizable datetime picker. The component uses extensive set of props that allows you to customizing the calendar based on your own UI design. Please visit [demo](https://ahmedwahba.github.io/react-native-calendar-datepicker/).
 
 ## Features
 

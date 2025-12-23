@@ -6,7 +6,7 @@ import {
   DateType,
   CalendarWeek,
   CalendarComponents,
-} from 'react-native-ui-datepicker';
+} from 'react-native-calendar-datepicker';
 import dayjs from 'dayjs';
 import Feather from '@expo/vector-icons/Feather';
 import { cssInterop } from 'nativewind';
