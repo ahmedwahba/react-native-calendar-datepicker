@@ -168,6 +168,7 @@ Use the `styles` prop to apply custom styles instead of the default ones.
 
 These styles are mapped to the values of the [UI Theme](https://github.com/farhoudshapouran/react-native-ui-datepicker/blob/main/src/ui.ts) enums.
 
+{% raw %}
 ```jsx
 import DateTimePicker, { useDefaultStyles } from 'react-native-calendars-datepicker';
 
@@ -186,6 +187,7 @@ export function Calendar() {
   );
 }
 ```
+{% endraw %}
 
 ## NativeWind (Tailwind CSS)
 
@@ -194,6 +196,7 @@ Use the `classNames` prop to apply custom class names instead of the default one
 
 These class names are mapped to the values of the [UI Theme](https://github.com/farhoudshapouran/react-native-ui-datepicker/blob/main/src/ui.ts) enums.
 
+{% raw %}
 ```jsx
 import DateTimePicker, { useDefaultClassNames } from 'react-native-calendars-datepicker';
 
@@ -214,6 +217,7 @@ export function Calendar() {
   );
 }
 ```
+{% endraw %}
 
 ## Time Zones
 
