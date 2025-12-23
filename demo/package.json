@@ -70,7 +70,12 @@
     "jest-expo": "~52.0.4",
     "prettier": "^3.4.2",
     "react-test-renderer": "18.3.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
+  },
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
   },
   "private": true
 }
