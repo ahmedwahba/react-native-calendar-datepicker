@@ -57,8 +57,8 @@ jobs:
       - name: Build demo
         working-directory: ./demo
         env:
-          NODE_OPTIONS: '--no-warnings --experimental-loader ts-node/esm'
-        run: yarn expo export -p web
+          NODE_OPTIONS: '--no-warnings'
+        run: npx expo export -p web
 
       - name: Verify build output
         run: |
