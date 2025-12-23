@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - hotfix/**
     paths:
       - 'demo/**'
       - '.github/workflows/demo-deploy.yml'
@@ -59,13 +60,28 @@ jobs:
           NODE_OPTIONS: '--no-warnings --experimental-loader ts-node/esm'
         run: yarn expo export -p web
 
+      - name: Verify build output
+        run: |
+          if [ ! -d "demo/dist" ]; then
+            echo "Error: demo/dist directory does not exist"
+            exit 1
+          fi
+          echo "Build output contents:"
+          ls -la demo/dist/
+          if [ ! -f "demo/dist/index.html" ]; then
+            echo "Error: demo/dist/index.html does not exist"
+            exit 1
+          fi
+          # Create .nojekyll file to prevent Jekyll processing
+          touch demo/dist/.nojekyll
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './demo/dist'
+          path: 'demo/dist'
 
       - name: Deploy to GitHub Pages
         id: deployment
