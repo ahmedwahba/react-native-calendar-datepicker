@@ -1,0 +1,92 @@
+diff --git a/node_modules/expo-modules-core/package.json b/node_modules/expo-modules-core/package.json
+index 1234567..abcdefg 100644
+--- a/node_modules/expo-modules-core/package.json
++++ b/node_modules/expo-modules-core/package.json
+@@ -2,7 +2,7 @@
+   "name": "expo-modules-core",
+   "version": "2.2.3",
+   "description": "The core of Expo Modules architecture",
+-  "main": "src/index.ts",
++  "main": "index.js",
+   "types": "build/index.d.ts",
+   "sideEffects": [
+     "*.fx.ts"
+diff --git a/node_modules/expo-modules-core/index.js b/node_modules/expo-modules-core/index.js
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/node_modules/expo-modules-core/index.js
+@@ -0,0 +1,50 @@
++// This file provides a Node.js-compatible entry point
++// Metro bundler will resolve to src/index.ts instead for actual runtime
++
++const NativeModulesProxy = {};
++
++function requireOptionalNativeModule(moduleName) {
++  return NativeModulesProxy[moduleName] ?? null;
++}
++
++function requireNativeModule(moduleName) {
++  const module = requireOptionalNativeModule(moduleName);
++  if (!module) {
++    throw new Error(`Cannot find native module '${moduleName}'`);
++  }
++  return module;
++}
++
++class CodedError extends Error {
++  constructor(message, code) {
++    super(message);
++    this.code = code;
++    this.name = 'CodedError';
++  }
++}
++
++class UnavailabilityError extends Error {
++  constructor(moduleName, propertyName) {
++    super(`Property '${propertyName}' is not available on module '${moduleName}'`);
++    this.name = 'UnavailabilityError';
++  }
++}
++
++class EventEmitter {
++  constructor() {
++    this._listeners = {};
++  }
++  
++  addListener(event, listener) {
++    if (!this._listeners[event]) {
++      this._listeners[event] = [];
++    }
++    this._listeners[event].push(listener);
++    return { remove: () => this.removeListener(event, listener) };
++  }
++  
++  removeListener(event, listener) {
++    if (this._listeners[event]) {
++      this._listeners[event] = this._listeners[event].filter(l => l !== listener);
++    }
++  }
++  
++  emit(event, ...args) {
++    if (this._listeners[event]) {
++      this._listeners[event].forEach(listener => listener(...args));
++    }
++  }
++}
++
++module.exports = {
++  requireOptionalNativeModule,
++  requireNativeModule,
++  Platform: { OS: process.platform === 'darwin' ? 'ios' : process.platform === 'win32' ? 'windows' : 'android' },
++  CodedError,
++  UnavailabilityError,
++  EventEmitter,
++  NativeModulesProxy,
++  LegacyEventEmitter: EventEmitter,
++  NativeModule: class NativeModule {},
++  SharedObject: class SharedObject {},
++  SharedRef: class SharedRef {},
++  requireNativeViewManager: () => null,
++  uuid: () => require('crypto').randomUUID?.() || Math.random().toString(36).substring(2),
++};

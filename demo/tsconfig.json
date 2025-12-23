@@ -14,9 +14,5 @@
     "expo-env.d.ts",
     "nativewind-env.d.ts"
   ],
-  "exclude": ["node_modules", "build", "dist", ".expo"],
-  "ts-node": {
-    "esm": true,
-    "experimentalSpecifierResolution": "node"
-  }
+  "exclude": ["node_modules", "build", "dist", ".expo"]
 }

@@ -57,7 +57,7 @@ jobs:
       - name: Build demo
         working-directory: ./demo
         env:
-          NODE_OPTIONS: '--no-warnings'
+          NODE_OPTIONS: '--no-warnings --experimental-loader tsx'
         run: npx expo export -p web
 
       - name: Verify build output
