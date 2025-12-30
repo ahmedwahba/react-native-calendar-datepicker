@@ -9,7 +9,7 @@ import {
 import DateTimePicker, {
   DateType,
   useDefaultStyles,
-} from 'react-native-ui-datepicker';
+} from 'react-native-calendar-datepicker';
 import dayjs, { Dayjs } from 'dayjs';
 
 export default function BottomSheetScreen() {

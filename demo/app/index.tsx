@@ -77,10 +77,10 @@ export default function MainPage() {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="npm" className="p-5">
-            <PackageManager command="npm install react-native-ui-datepicker" />
+            <PackageManager command="npm install react-native-calendars-datepicker" />
           </TabsContent>
           <TabsContent value="yarn" className="p-5">
-            <PackageManager command="yarn add react-native-ui-datepicker" />
+            <PackageManager command="yarn add react-native-calendars-datepicker" />
           </TabsContent>
         </Tabs>
       </View>
