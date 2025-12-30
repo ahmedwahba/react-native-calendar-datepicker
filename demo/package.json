@@ -12,7 +12,8 @@
     "test": "jest --watchAll",
     "lint": "expo lint",
     "predeploy": "npx expo export -p web",
-    "deploy": "gh-pages --nojekyll -d dist",
+    "deploy": "node ./scripts/deploy.js",
+    "deploy:clean": "rm -rf node_modules/.cache/gh-pages .cache/gh-pages && yarn deploy",
     "postinstall": "patch-package"
   },
   "jest": {

@@ -7,6 +7,7 @@ on:
       - hotfix/**
     paths:
       - 'demo/**'
+      - 'src/**'
       - '.github/workflows/demo-deploy.yml'
   workflow_dispatch: # Allows manual triggering
 
@@ -74,6 +75,9 @@ jobs:
           fi
           # Create .nojekyll file to prevent Jekyll processing
           touch demo/dist/.nojekyll
+          # Copy index.html to 404.html for SPA client-side routing
+          cp demo/dist/index.html demo/dist/404.html
+          echo "Created 404.html for SPA routing"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
