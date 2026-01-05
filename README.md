@@ -5,7 +5,7 @@
 ## Intro
 
 <p align="center">
-<img src="/.github/images/rnui-datepicker.png" alt="react-native-ui-datepicker" />
+<img src="/.github/images/rnui-datepicker.png" alt="react-native-calendars-datepicker" />
 </p>
 
 
@@ -133,7 +133,7 @@ export function Calendar() {
 | `max`             | `number`            | Defines the maximum allowed days to select.                 |
 | `multiRangeMode`  | `boolean`           | Whether to display selecting multiple dates in a range row. |
 
-![react-native-ui-datepicker-styles](https://user-images.githubusercontent.com/7857656/227260476-30ee8c25-f809-4dcf-bccf-cd1ffab8795a.jpg)
+![datepicker-styles](.github/images/rn-calendars-picker.png)
 
 ## Customization
 
@@ -366,7 +366,7 @@ type CalendarYear = {
 | `mlym`     | Malayalam, used in Kerala, India.             |
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/7857656/227187674-93012672-495d-4955-b4d3-46c3d016684e.jpg" alt="react-native-ui-datepicker" />
+<img src=".github/images/rn-calendars-picker.png" alt="react-native-calendars-datepicker" />
 </p>
 
 ## License
