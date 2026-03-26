@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Button, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {
@@ -8,6 +8,7 @@ import {
 } from '@gorhom/bottom-sheet';
 import DateTimePicker, {
   DateType,
+  CalendarEvent,
   useDefaultStyles,
 } from 'react-native-calendar-datepicker';
 import dayjs, { Dayjs } from 'dayjs';
@@ -22,6 +23,42 @@ export default function BottomSheetScreen() {
     startDate: DateType;
     endDate: DateType;
   }>({ startDate: undefined, endDate: undefined });
+
+  const events: CalendarEvent[] = useMemo(() => {
+    const today = dayjs();
+    return [
+      {
+        date: today.add(1, 'day').format('YYYY-MM-DD'),
+        color: '#f43f5e',
+        details: 'Doctor appointment at 09:00',
+      },
+      {
+        date: today.add(1, 'day').format('YYYY-MM-DD'),
+        color: '#3b82f6',
+        details: 'Product roadmap sync',
+      },
+      {
+        date: today.add(3, 'day').format('YYYY-MM-DD'),
+        color: '#10b981',
+        // details: 'Vacation for holiday festival',
+      },
+      {
+        date: today.add(5, 'day').format('YYYY-MM-DD'),
+        color: '#f59e0b',
+        details: 'Conference opening session',
+      },
+      {
+        date: today.add(5, 'day').format('YYYY-MM-DD'),
+        color: '#8b5cf6',
+        details: 'Workshop: React Native animations',
+      },
+      {
+        date: today.add(5, 'day').format('YYYY-MM-DD'),
+        color: '#f43f5e',
+        details: 'Dinner with friends',
+      },
+    ];
+  }, []);
 
   const handlePresentModalPress = useCallback(() => {
     bottomSheetModalRef.current?.present();
@@ -57,6 +94,8 @@ export default function BottomSheetScreen() {
               //timePicker
               calendar={isGregorian ? "gregory" : "islamic"}
               locale="ar"
+              events={events}
+              eventViewMode
               //numerals="arabext"
             />
           </BottomSheetView>

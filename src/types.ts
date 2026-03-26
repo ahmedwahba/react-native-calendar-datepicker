@@ -38,6 +38,13 @@ export type CalendarAction = {
   payload: any;
 };
 
+export type CalendarEvent = {
+  date: string;
+  color: string;
+  /** Optional event details shown in tooltip when eventViewMode is enabled */
+  details?: string;
+};
+
 export type CalendarDay = {
   number: number;
   text: string;
@@ -172,6 +179,10 @@ export interface DatePickerBaseProps {
   disableMonthPicker?: boolean;
   disableYearPicker?: boolean;
   components?: CalendarComponents;
+  /** Array of events to display as colored dots on day cells */
+  events?: CalendarEvent[];
+  /** Show a day events tooltip instead of selecting a date when pressing a day */
+  eventViewMode?: boolean;
   /** use to handle month and year selectors */
   month?: number;
   year?: number;

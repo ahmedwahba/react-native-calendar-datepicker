@@ -1,14 +1,41 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { Calendar, DateType } from '../ui/calendar';
 import dayjs from 'dayjs';
 import { DateInput } from '../date-input';
+import type { CalendarEvent } from 'react-native-calendar-datepicker';
 
 export default function RangeDatePicker() {
   const [range, setRange] = useState<{
     startDate: DateType;
     endDate: DateType;
   }>({ startDate: undefined, endDate: undefined });
+
+  const events: CalendarEvent[] = useMemo(() => {
+    const today = dayjs();
+    return [
+      {
+        date: today.add(1, 'day').format('YYYY-MM-DD'),
+        color: '#f43f5e',
+        details: 'Family lunch',
+      },
+      {
+        date: today.add(3, 'day').format('YYYY-MM-DD'),
+        color: '#3b82f6',
+        details: 'Flight check-in reminder',
+      },
+      {
+        date: today.add(3, 'day').format('YYYY-MM-DD'),
+        color: '#10b981',
+        details: 'Hotel booking confirmation',
+      },
+      {
+        date: today.add(6, 'day').format('YYYY-MM-DD'),
+        color: '#f59e0b',
+        details: 'Conference keynote',
+      },
+    ];
+  }, []);
 
   const from = range.startDate
     ? dayjs(range.startDate).format('MMM DD, YYYY')
@@ -22,6 +49,8 @@ export default function RangeDatePicker() {
         startDate={range.startDate}
         endDate={range.endDate}
         onChange={(params) => setRange(params)}
+        events={events}
+        eventViewMode
       />
       <DateInput
         value={from || to ? `${from} - ${to}` : null}

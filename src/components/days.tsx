@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import dayjs from 'dayjs';
 import { useCalendarContext } from '../calendar-context';
@@ -11,9 +11,10 @@ import {
   isDateBetween,
   getDayjs,
   addTime,
+  DATE_FORMAT,
 } from '../utils';
 import Weekdays from './weekdays';
-import { DateType } from 'src/types';
+import type { DateType, CalendarEvent } from 'src/types';
 
 const Days = () => {
   const {
@@ -43,6 +44,8 @@ const Days = () => {
     hideWeekdays,
     components,
     isRTL,
+    events = [],
+    eventViewMode = false,
   } = useCalendarContext();
 
   const style = useMemo(() => createDefaultStyles(isRTL), [isRTL]);
@@ -66,6 +69,50 @@ const Days = () => {
   const containerStyle = useMemo(
     () => [style.daysContainer, styles?.days],
     [style.daysContainer, styles?.days]
+  );
+
+  const [openedTooltipDate, setOpenedTooltipDate] = useState<
+    string | undefined
+  >();
+
+  const eventsMap = useMemo(() => {
+    const map = new Map<string, CalendarEvent[]>();
+    if (!events || events.length === 0) return map;
+    for (const event of events as CalendarEvent[]) {
+      const key = getDayjs(event.date, calendar).format(DATE_FORMAT);
+      const existing = map.get(key);
+      if (existing) {
+        existing.push(event);
+      } else {
+        map.set(key, [event]);
+      }
+    }
+    return map;
+  }, [events, calendar]);
+
+  const handlePressDay = useCallback(
+    (selectedDate: DateType) => {
+      const selectedDayKey = getDayjs(selectedDate, calendar).format(
+        DATE_FORMAT
+      );
+
+      if (!eventViewMode) {
+        setOpenedTooltipDate(undefined);
+        handleSelectDate(selectedDate);
+        return;
+      }
+
+      const dayEvents = eventsMap.get(selectedDayKey) || [];
+      if (dayEvents.length === 0) {
+        setOpenedTooltipDate(undefined);
+        return;
+      }
+
+      setOpenedTooltipDate((prev) =>
+        prev === selectedDayKey ? undefined : selectedDayKey
+      );
+    },
+    [calendar, eventViewMode, eventsMap, handleSelectDate]
   );
 
   const daysGrid = useMemo(() => {
@@ -248,19 +295,28 @@ const Days = () => {
       ) : null}
       <View style={containerStyle} className={classNames?.days} testID="days">
         {daysGrid?.map((day, index) => {
-          return day ? (
+          if (!day) return <EmptyDay key={index} />;
+          const dayKey = getDayjs(day.date, calendar).format(DATE_FORMAT);
+          const dayEvents = eventsMap.get(dayKey) || [];
+          const eventDots = dayEvents.map((event) => event.color);
+          const totalRows = Math.ceil(daysGrid.length / 7);
+          return (
             <Day
               key={index}
               day={day}
-              onSelectDate={handleSelectDate}
+              dayIndex={index}
+              totalRows={totalRows}
+              eventDots={eventDots}
+              dayEvents={dayEvents}
+              onSelectDate={handlePressDay}
+              eventViewMode={eventViewMode}
+              isTooltipVisible={eventViewMode && openedTooltipDate === dayKey}
               containerHeight={containerHeight}
               weekdaysHeight={weekdaysHeight}
               styles={styles}
               classNames={classNames}
               components={components}
             />
-          ) : (
-            <EmptyDay key={index} />
           );
         })}
       </View>

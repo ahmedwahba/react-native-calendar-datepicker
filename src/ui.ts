@@ -57,6 +57,10 @@ export enum UI {
   time_label = 'time_label',
   /** The indicator of the selected hour and minutes. */
   time_selected_indicator = 'time_selected_indicator',
+  /** The container row holding event dots below the day label. */
+  event_dots_container = 'event_dots_container',
+  /** A single colored event dot. */
+  event_dot = 'event_dot',
 }
 
 export enum SelectionState {
