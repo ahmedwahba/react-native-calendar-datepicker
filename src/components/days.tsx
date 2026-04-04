@@ -46,6 +46,8 @@ const Days = () => {
     isRTL,
     events = [],
     eventViewMode = false,
+    displayEventTooltip = false,
+    onEventDayPress,
   } = useCalendarContext();
 
   const style = useMemo(() => createDefaultStyles(isRTL), [isRTL]);
@@ -103,6 +105,13 @@ const Days = () => {
       }
 
       const dayEvents = eventsMap.get(selectedDayKey) || [];
+      onEventDayPress?.({ date: selectedDate, dayEvents });
+
+      if (!displayEventTooltip) {
+        setOpenedTooltipDate(undefined);
+        return;
+      }
+
       if (dayEvents.length === 0) {
         setOpenedTooltipDate(undefined);
         return;
@@ -112,7 +121,14 @@ const Days = () => {
         prev === selectedDayKey ? undefined : selectedDayKey
       );
     },
-    [calendar, eventViewMode, eventsMap, handleSelectDate]
+    [
+      calendar,
+      displayEventTooltip,
+      eventViewMode,
+      eventsMap,
+      handleSelectDate,
+      onEventDayPress,
+    ]
   );
 
   const daysGrid = useMemo(() => {
@@ -310,7 +326,11 @@ const Days = () => {
               dayEvents={dayEvents}
               onSelectDate={handlePressDay}
               eventViewMode={eventViewMode}
-              isTooltipVisible={eventViewMode && openedTooltipDate === dayKey}
+              isTooltipVisible={
+                eventViewMode &&
+                displayEventTooltip &&
+                openedTooltipDate === dayKey
+              }
               containerHeight={containerHeight}
               weekdaysHeight={weekdaysHeight}
               styles={styles}

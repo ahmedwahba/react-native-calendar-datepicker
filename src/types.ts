@@ -103,6 +103,11 @@ export type MultiChange = (params: {
   change: 'added' | 'removed' | 'updated';
 }) => void;
 
+export type EventDayPress = (params: {
+  date: DateType;
+  dayEvents: CalendarEvent[];
+}) => void;
+
 export type ClassNames = Partial<{
   [key in
     | UI
@@ -183,6 +188,10 @@ export interface DatePickerBaseProps {
   events?: CalendarEvent[];
   /** Show a day events tooltip instead of selecting a date when pressing a day */
   eventViewMode?: boolean;
+  /** Controls tooltip rendering in event view mode (default: false) */
+  displayEventTooltip?: boolean;
+  /** Callback fired in event view mode with the pressed date and all day events */
+  onEventDayPress?: EventDayPress;
   /** use to handle month and year selectors */
   month?: number;
   year?: number;

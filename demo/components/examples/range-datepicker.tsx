@@ -51,6 +51,10 @@ export default function RangeDatePicker() {
         onChange={(params) => setRange(params)}
         events={events}
         eventViewMode
+        onEventDayPress={({ date, dayEvents }) => {
+          console.log('Range day pressed:', dayjs(date).format('YYYY-MM-DD'));
+          console.log('Range day events:', dayEvents);
+        }}
       />
       <DateInput
         value={from || to ? `${from} - ${to}` : null}

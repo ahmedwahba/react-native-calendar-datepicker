@@ -96,6 +96,14 @@ export default function BottomSheetScreen() {
               locale="ar"
               events={events}
               eventViewMode
+              displayEventTooltip
+              onEventDayPress={({ date, dayEvents }) => {
+                console.log(
+                  'Bottom sheet day pressed:',
+                  dayjs(date).format('YYYY-MM-DD')
+                );
+                console.log('Bottom sheet day events:', dayEvents);
+              }}
               //numerals="arabext"
             />
           </BottomSheetView>

@@ -52,6 +52,11 @@ export default function SingleDatePicker() {
         onChange={({ date }) => setDate(date)}
         events={events}
         eventViewMode
+        displayEventTooltip
+        onEventDayPress={({ date, dayEvents }) => {
+          console.log('Single day pressed:', dayjs(date).format('YYYY-MM-DD'));
+          console.log('Single day events:', dayEvents);
+        }}
         timePicker
         //use12Hours
         //minDate={new Date()}

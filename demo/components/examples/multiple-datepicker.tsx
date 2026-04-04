@@ -41,6 +41,11 @@ export default function MultipleDatePicker() {
         onChange={({ dates }) => setDates(dates)}
         events={events}
         eventViewMode
+        displayEventTooltip
+        onEventDayPress={({ date, dayEvents }) => {
+          console.log('Multiple day pressed:', dayjs(date).format('YYYY-MM-DD'));
+          console.log('Multiple day events:', dayEvents);
+        }}
       />
       <DateInput value={selectedDates || null} placeholder="Pick some dates" />
     </View>

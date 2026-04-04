@@ -124,6 +124,8 @@ const DateTimePicker = (
     components = {},
     events = [],
     eventViewMode = false,
+    displayEventTooltip = false,
+    onEventDayPress,
     month,
     year,
     onMonthChange = () => {},
@@ -680,6 +682,8 @@ const DateTimePicker = (
       use12Hours,
       events,
       eventViewMode,
+      displayEventTooltip,
+      onEventDayPress,
     }),
     [
       mode,
@@ -713,6 +717,8 @@ const DateTimePicker = (
       use12Hours,
       events,
       eventViewMode,
+      displayEventTooltip,
+      onEventDayPress,
     ]
   );
 
