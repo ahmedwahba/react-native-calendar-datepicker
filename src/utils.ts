@@ -107,10 +107,16 @@ export const adjustDayjsHijriDate = (
 };
 
 /**
- * Converts a date to a dayjs object with optional Islamic calendar support.
+ * Converts a date to a dayjs object with optional Islamic calendar support and
+ * optional timezone anchoring.
  *
  * @param {DateType} date - The input date to convert (can be any value dayjs accepts)
  * @param {CalendarType} [calendar] - Optional calendar type to use ('islamic' for Hijri calendar)
+ * @param {string} [timeZone] - Optional IANA timezone name. When provided (and the calendar
+ *   is not Hijri), the resulting dayjs is anchored to that timezone so that later
+ *   reads (`.date()`, `.hour()`, `.format()`) and writes (`.set('date', d)`, `.hour(h)`)
+ *   happen in that timezone. Critical for keeping the UI and the value returned via
+ *   `onChange` consistent for consumers that serialize with `.toISOString()`.
  * @returns {Dayjs} A dayjs object in either the default or Islamic calendar system
  *
  * @example
@@ -120,8 +126,16 @@ export const adjustDayjsHijriDate = (
  * @example
  * // Get a dayjs object of a date in the Hijri calendar
  * const hijri = getDayjs('2025-03-20', 'islamic');
+ *
+ * @example
+ * // Get a dayjs object anchored to a specific timezone
+ * const tokyo = getDayjs('2025-03-20', 'gregory', 'Asia/Tokyo');
  */
-export const getDayjs = (date: DateType, calendar?: CalendarType) => {
+export const getDayjs = (
+  date: DateType,
+  calendar?: CalendarType,
+  timeZone?: string
+) => {
   if (date === undefined) {
     date = new Date();
   }
@@ -133,7 +147,7 @@ export const getDayjs = (date: DateType, calendar?: CalendarType) => {
 
     return dayjsHijri as dayjs.Dayjs;
   }
-  return dayjs(date);
+  return timeZone ? dayjs.tz(date, timeZone) : dayjs(date);
 };
 
 /**
@@ -562,14 +576,18 @@ export function getFirstDayOfMonth(
  *
  * @param date - date to get start of day from
  * @param {CalendarType} [calendar] - Optional calendar type to use ('islamic' for Hijri calendar)
+ * @param {string} [timeZone] - Optional IANA timezone. When provided, the "start of day"
+ *   is anchored to that timezone (wall-clock midnight in `timeZone`) instead of the
+ *   system local timezone.
  *
  * @returns start of day
  */
 export function getStartOfDay(
   date: DateType,
-  calendar?: CalendarType
+  calendar?: CalendarType,
+  timeZone?: string
 ): DateType {
-  return getDayjs(date, calendar).startOf('day');
+  return getDayjs(date, calendar, timeZone).startOf('day');
 }
 
 /**
@@ -577,11 +595,17 @@ export function getStartOfDay(
  *
  * @param date - date to get end of day from
  * @param {CalendarType} [calendar] - Optional calendar type to use ('islamic' for Hijri calendar)
+ * @param {string} [timeZone] - Optional IANA timezone. When provided, the "end of day"
+ *   is anchored to that timezone (wall-clock 23:59:59.999 in `timeZone`).
  *
  * @returns end of day
  */
-export function getEndOfDay(date: DateType, calendar?: CalendarType): DateType {
-  return getDayjs(date, calendar).endOf('day');
+export function getEndOfDay(
+  date: DateType,
+  calendar?: CalendarType,
+  timeZone?: string
+): DateType {
+  return getDayjs(date, calendar, timeZone).endOf('day');
 }
 
 /**
@@ -630,7 +654,11 @@ export function removeTime(
     return hijriDate;
   }
 
-  return dayjs(dayjs.tz(date, timeZone).startOf('day'));
+  // NOTE: keep the result anchored to `timeZone`. Previously this was
+  // re-wrapped with `dayjs(...)`, which strips the timezone marker and
+  // re-interprets the instant in the system local tz — that silently
+  // shifts the calendar day for consumers in non-UTC timezones.
+  return dayjs.tz(date, timeZone).startOf('day');
 }
 
 /**
@@ -641,8 +669,12 @@ export function removeTime(
  *
  * @returns parsed date object
  */
-export const getParsedDate = (date: DateType, calendar?: CalendarType) => {
-  const dayjsDate = getDayjs(date, calendar);
+export const getParsedDate = (
+  date: DateType,
+  calendar?: CalendarType,
+  timeZone?: string
+) => {
+  const dayjsDate = getDayjs(date, calendar, timeZone);
   return {
     year: dayjsDate.year(),
     month: dayjsDate.month(),
@@ -661,22 +693,21 @@ export const addTime = (
 ) => {
   if (calendar === 'islamic') {
     let hijriDateTime = date;
-    if (hour) (hijriDateTime as any).$H = hour;
-    if (minute) (hijriDateTime as any).$m = minute;
+    if (hour !== undefined) (hijriDateTime as any).$H = hour;
+    if (minute !== undefined) (hijriDateTime as any).$m = minute;
 
     return hijriDateTime;
   }
-  if (hour && minute) {
-    return date.hour(hour).minute(minute);
-  }
-  if (hour && !minute) {
-    return date.hour(hour);
-  }
-  if (minute && !hour) {
-    return date.minute(minute);
-  }
 
-  return date.hour(0).minute(0);
+  // NOTE: use `!== undefined` rather than truthiness so that legitimate
+  // values of 0 (midnight hour, zero minute) are not skipped. The previous
+  // `if (hour && minute)` branch treated 0 as falsy and fell through to the
+  // fallback `date.hour(0).minute(0)`, which is the exact path that caused
+  // the returned value to land on local-midnight and shift the ISO day.
+  let result = date;
+  if (hour !== undefined) result = result.hour(hour);
+  if (minute !== undefined) result = result.minute(minute);
+  return result;
 };
 
 const getPrevHijriDate = (date: dayjs.Dayjs, dateDay: number) => {
@@ -726,9 +757,14 @@ export const getMonthDays = (
   daysInCurrentMonth: number,
   daysInNextMonth: number,
   numerals: Numerals,
-  calendar?: CalendarType
+  calendar?: CalendarType,
+  timeZone?: string
 ): CalendarDay[] => {
-  const date = getDayjs(datetime, calendar);
+  // Anchor the base date to `timeZone` so that each cell's `.date` represents
+  // the intended wall-clock day in that zone. Without this, every cell is a
+  // local-time dayjs and `.toISOString()` shifts the day for consumers outside
+  // that zone.
+  const date = getDayjs(datetime, calendar, timeZone);
 
   const prevDays = showOutsideDays
     ? Array.from({ length: prevMonthOffset }, (_, index) => {

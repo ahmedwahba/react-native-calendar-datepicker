@@ -52,12 +52,15 @@ const Days = () => {
 
   const style = useMemo(() => createDefaultStyles(isRTL), [isRTL]);
 
-  const { hour, minute } = getParsedDate(currentDate, calendar);
+  const { hour, minute } = getParsedDate(currentDate, calendar, timeZone);
 
   const handleSelectDate = useCallback(
     (selectedDate: DateType) => {
+      // Anchor the selected cell to `timeZone` before writing time onto it so
+      // the resulting wall-clock (and therefore the .toISOString() day) matches
+      // what the UI displayed.
       const newDate = addTime(
-        getDayjs(selectedDate, calendar),
+        getDayjs(selectedDate, calendar, timeZone),
         calendar,
         hour,
         minute
@@ -65,7 +68,7 @@ const Days = () => {
 
       onSelectDate(newDate);
     },
-    [calendar, hour, minute, onSelectDate]
+    [calendar, hour, minute, onSelectDate, timeZone]
   );
 
   const containerStyle = useMemo(
@@ -158,7 +161,8 @@ const Days = () => {
       daysInCurrentMonth,
       daysInNextMonth,
       numerals,
-      calendar
+      calendar,
+      timeZone
     ).map((day, index) => {
       if (!day) return null;
 

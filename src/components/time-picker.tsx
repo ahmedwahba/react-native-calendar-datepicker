@@ -41,6 +41,7 @@ const TimePicker = () => {
     numerals = 'latn',
     use12Hours,
     calendar,
+    timeZone,
   } = useCalendarContext();
 
   const hours = useMemo(
@@ -50,7 +51,11 @@ const TimePicker = () => {
 
   const minutes = useMemo(() => createNumberList(60, numerals), [numerals]);
 
-  const { hour, hour12, minute, period } = getParsedDate(date || currentDate);
+  const { hour, hour12, minute, period } = getParsedDate(
+    date || currentDate,
+    calendar,
+    timeZone
+  );
 
   const handleChangeHour = useCallback(
     (value: number) => {
@@ -64,27 +69,27 @@ const TimePicker = () => {
         }
       }
       const newDate = addTime(
-        getDayjs(date, calendar),
+        getDayjs(date, calendar, timeZone),
         calendar,
         hour24,
         minute
       );
       onSelectDate(newDate);
     },
-    [use12Hours, date, calendar, minute, onSelectDate, period]
+    [use12Hours, date, calendar, minute, onSelectDate, period, timeZone]
   );
 
   const handleChangeMinute = useCallback(
     (value: number) => {
       const newDate = addTime(
-        getDayjs(date, calendar),
+        getDayjs(date, calendar, timeZone),
         calendar,
         undefined,
         value
       );
       onSelectDate(newDate);
     },
-    [calendar, date, onSelectDate]
+    [calendar, date, onSelectDate, timeZone]
   );
 
   const handlePeriodChange = useCallback(
@@ -99,13 +104,13 @@ const TimePicker = () => {
       }
 
       const newDate = addTime(
-        getDayjs(date || currentDate, calendar),
+        getDayjs(date || currentDate, calendar, timeZone),
         calendar,
         newHour
       );
       onSelectDate(newDate);
     },
-    [hour12, hour, date, currentDate, calendar, onSelectDate]
+    [hour12, hour, date, currentDate, calendar, onSelectDate, timeZone]
   );
 
   const timePickerContainerStyle: ViewStyle = useMemo(

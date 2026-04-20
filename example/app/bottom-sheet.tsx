@@ -81,29 +81,30 @@ export default function BottomSheetScreen() {
           <Button  title="reset" onPress={() => {setDate(undefined)}}  />
             <DateTimePicker
               styles={defaultStyles}
-              mode="range"
+              mode="single"
               minDate={new Date(2024, 11, 20)}
               maxDate={new Date(2026, 11, 20)}
-              // date={date}
-              startDate={range.startDate}
-              endDate={range.endDate}
-              onChange={(params) => {setRange(params); console.log('date:', params.startDate)}}
+              date={date}
+              // startDate={range.startDate}
+              // endDate={range.endDate}
+              // onChange={(params) => {setRange(params); console.log('date:', params.startDate)}}
+              onChange={({ date }) =>  setDate(date)}
               // firstDayOfWeek={6}
-              multiRangeMode
+              // multiRangeMode
               showOutsideDays
               //timePicker
               calendar={isGregorian ? "gregory" : "islamic"}
-              locale="ar"
-              events={events}
-              eventViewMode
-              displayEventTooltip
-              onEventDayPress={({ date, dayEvents }) => {
-                console.log(
-                  'Bottom sheet day pressed:',
-                  dayjs(date).format('YYYY-MM-DD')
-                );
-                console.log('Bottom sheet day events:', dayEvents);
-              }}
+              // locale="ar"
+              // events={events}
+              // eventViewMode
+              // displayEventTooltip
+              // onEventDayPress={({ date, dayEvents }) => {
+              //   console.log(
+              //     'Bottom sheet day pressed:',
+              //     dayjs(date).format('YYYY-MM-DD')
+              //   );
+              //   console.log('Bottom sheet day events:', dayEvents);
+              // }}
               //numerals="arabext"
             />
           </BottomSheetView>
