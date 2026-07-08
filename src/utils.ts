@@ -1,4 +1,4 @@
-import dayjs, { isDayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import type {
   DateType,
   CalendarDay,
@@ -71,39 +71,38 @@ export const adjustDayjsHijriDate = (
   dayjsDate: dayjs.Dayjs,
   hijriDate?: umalqura.UmAlQura
 ): dayjs.Dayjs => {
-  let umalquraDate = hijriDate;
-  if (!umalquraDate && isDayjs(dayjsDate)) {
-    umalquraDate = umalqura(
-      new Date(dayjsDate.year(), dayjsDate.month(), dayjsDate.get('date'))
+  // With `UmalquraCalendarSystem` registered for `'islamic'`, every
+  // Hijri <-> Gregorian conversion the calidy plugin performs already flows
+  // through @umalqura/core. So we only need to make sure the returned dayjs
+  // is anchored on the correct Gregorian day and is in the Islamic calendar
+  // system - .toCalendarSystem('islamic') then derives all $C_*/$G_* fields
+  // consistently.
+  if (hijriDate) {
+    const g = umalqura.$.hijriToGregorian(
+      hijriDate.hy,
+      hijriDate.hm,
+      hijriDate.hd
     );
+    const source = dayjsDate as unknown as {
+      $H?: number;
+      $m?: number;
+      $s?: number;
+      $ms?: number;
+    };
+    const anchor = dayjs(
+      new Date(
+        g.gy,
+        g.gm,
+        g.gd,
+        source?.$H ?? 0,
+        source?.$m ?? 0,
+        source?.$s ?? 0,
+        source?.$ms ?? 0
+      )
+    );
+    return anchor.toCalendarSystem('islamic') as dayjs.Dayjs;
   }
-  if (!umalquraDate) {
-    umalquraDate = umalqura(new Date(dayjs(dayjsDate).toDate()));
-  }
-  const gregoryDate = convertHijriToGregorian(umalquraDate);
-  let validDate;
-  if ((dayjsDate as any).$C === 'islamic') {
-    validDate = dayjsDate
-      .year(umalquraDate.hy)
-      .set('date', umalquraDate.hd)
-      .month(umalquraDate.hm - 1);
-  } else {
-    validDate = dayjs(dayjsDate)
-      .toCalendarSystem('islamic')
-      .year(umalquraDate.hy)
-      .month(umalquraDate.hm - 1);
-  }
-  (validDate as any).$M = umalquraDate.hm - 1;
-  (validDate as any).$C_M = umalquraDate.hm - 1;
-  (validDate as any).$D = umalquraDate.hd;
-  (validDate as any).$C_D = umalquraDate.hd;
-  (validDate as any).$y = umalquraDate.hy;
-  (validDate as any).$C_y = umalquraDate.hy;
-  (validDate as any).$G_D = gregoryDate.gd;
-  (validDate as any).$G_M = gregoryDate.gm;
-  (validDate as any).$G_y = gregoryDate.gy;
-  (validDate as any).$W = umalquraDate.dayOfWeek;
-  return validDate;
+  return dayjs(dayjsDate).toCalendarSystem('islamic') as dayjs.Dayjs;
 };
 
 /**
@@ -164,15 +163,14 @@ export const getMonthsArray = ({
 }): CalendarMonth[] => {
   let monthNames: string[] = dayjs.months();
   let monthShortNames: string[] = dayjs.monthsShort();
-    if (calendar === 'islamic') {
-      umalqura.locale(locale);
-      monthNames = umalqura.months();
-      monthShortNames = umalqura.monthsShort();
-    }
-    else if (calendar === 'jalali') {
-      monthNames = getJalaliMonths(locale);
-      monthShortNames = getJalaliMonths(locale);
-    }
+  if (calendar === 'islamic') {
+    umalqura.locale(locale);
+    monthNames = umalqura.months();
+    monthShortNames = umalqura.monthsShort();
+  } else if (calendar === 'jalali') {
+    monthNames = getJalaliMonths(locale);
+    monthShortNames = getJalaliMonths(locale);
+  }
   return monthNames.map((name, index) => ({
     index,
     name: {

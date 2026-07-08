@@ -42,7 +42,7 @@ import duration from 'dayjs/plugin/duration';
 import { usePrevious } from './hooks/use-previous';
 import jalaliday from 'jalali-plugin-dayjs';
 import calendarSystems from '@calidy/dayjs-calendarsystems';
-import HijriCalendarSystem from '@calidy/dayjs-calendarsystems/calendarSystems/HijriCalendarSystem';
+import UmalquraCalendarSystem from './calendar-systems/umalqura-calendar-system';
 import toObject from 'dayjs/plugin/toObject';
 
 dayjs.extend(localeData);
@@ -55,8 +55,11 @@ dayjs.extend(jalaliday);
 dayjs.extend(toObject);
 
 dayjs.extend(calendarSystems);
-/* Register new calendar system, here I'm using Hijri for other sytems visit URL: https://github.com/calidy-com/dayjs-calendarsystems */
-dayjs.registerCalendarSystem('islamic', new HijriCalendarSystem());
+/* Register the Islamic calendar backed by @umalqura/core (Umm al-Qura) instead
+ * of the default tabular HijriCalendarSystem shipped with dayjs-calendarsystems,
+ * so every dayjs Hijri operation stays consistent with the astronomical
+ * Umm al-Qura calendar used throughout the rest of this library. */
+dayjs.registerCalendarSystem('islamic', new UmalquraCalendarSystem());
 
 export interface DatePickerSingleProps extends DatePickerBaseProps {
   mode: 'single';
