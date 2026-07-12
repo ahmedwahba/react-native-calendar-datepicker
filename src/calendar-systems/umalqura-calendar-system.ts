@@ -57,13 +57,22 @@ export default class UmalquraCalendarSystem extends HijriCalendarSystem {
     _second?: number,
     _millisecond?: number
   ): { year: number; month: number; day: number } {
-    const daysInMonth = this.safeDaysInMonth(year, month);
+    const normalized = this.normalizeMonth(year, month);
+    const daysInMonth = this.safeDaysInMonth(normalized.year, normalized.month);
     if (day >= 1 && day <= daysInMonth) {
-      const g = umalqura.$.hijriToGregorian(year, month + 1, day);
+      const g = umalqura.$.hijriToGregorian(
+        normalized.year,
+        normalized.month + 1,
+        day
+      );
       return { year: g.gy, month: g.gm, day: g.gd };
     }
 
-    const anchor = umalqura.$.hijriToGregorian(year, month + 1, 1);
+    const anchor = umalqura.$.hijriToGregorian(
+      normalized.year,
+      normalized.month + 1,
+      1
+    );
     const shifted = umalqura.$.addDays(
       new Date(anchor.gy, anchor.gm, anchor.gd),
       day - 1
@@ -118,5 +127,15 @@ export default class UmalquraCalendarSystem extends HijriCalendarSystem {
     } catch {
       return 30;
     }
+  }
+
+  private normalizeMonth(
+    year: number,
+    month: number
+  ): { year: number; month: number } {
+    const yearOffset = Math.floor(month / 12);
+    const normalizedMonth = ((month % 12) + 12) % 12;
+
+    return { year: year + yearOffset, month: normalizedMonth };
   }
 }

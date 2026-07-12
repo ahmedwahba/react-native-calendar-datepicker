@@ -88,7 +88,7 @@ export default function BottomSheetScreen() {
               // startDate={range.startDate}
               // endDate={range.endDate}
               // onChange={(params) => {setRange(params); console.log('date:', params.startDate)}}
-              onChange={({ date }) =>  setDate(date)}
+              onChange={({ date }) => { setDate(date); console.log('date:', date); }}
               // firstDayOfWeek={6}
               // multiRangeMode
               showOutsideDays
